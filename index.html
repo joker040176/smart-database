@@ -1,0 +1,2016 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>智能表格数据库</title>
+<script src="echarts.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+/* ===== 主题系统 ===== */
+:root,[data-theme="jade"]{
+  --bg:#0c1616;--bg2:rgba(14,28,28,.65);--bg3:rgba(18,36,36,.55);--bg4:rgba(24,48,48,.5);
+  --accent:#2dd4bf;--accent2:#5eead4;--accent3:#0d9488;--accent-bg:rgba(45,212,191,.12);
+  --red:#f87171;--text:#d4e8e6;--text2:#8aa8a6;--text3:#5a7876;--border:rgba(45,212,191,.15);
+  --shadow:0 8px 32px rgba(0,0,0,.4);--grad:linear-gradient(135deg,#2dd4bf,#0d9488);
+  --glass-bg:rgba(14,28,28,.55);--glass-border:rgba(45,212,191,.1);
+  --decor:"❖";--bg-pattern:radial-gradient(ellipse at 20% 20%,rgba(45,212,191,.08) 0%,transparent 50%),radial-gradient(ellipse at 80% 80%,rgba(13,148,136,.06) 0%,transparent 50%),radial-gradient(ellipse at 50% 50%,rgba(212,196,160,.03) 0%,transparent 70%);
+  --bg-overlay:
+    radial-gradient(ellipse 700px 500px at 10% 90%,rgba(45,212,191,.08) 0%,transparent 60%),
+    radial-gradient(ellipse 600px 400px at 90% 10%,rgba(13,148,136,.06) 0%,transparent 55%),
+    radial-gradient(ellipse 500px 300px at 50% 50%,rgba(212,196,160,.03) 0%,transparent 60%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Cpath d='M0 320 Q50 280 100 300 T200 290 T300 310 T400 295 L400 400 L0 400 Z' fill='%232dd4bf' opacity='0.04'/%3E%3Cpath d='M0 350 Q80 310 150 330 T300 320 T400 340 L400 400 L0 400 Z' fill='%230d9488' opacity='0.05'/%3E%3Cpath d='M50 100 Q70 80 90 100 T130 100' fill='none' stroke='%23c9a84c' stroke-width='1' opacity='0.1'/%3E%3Cpath d='M250 80 Q270 60 290 80 T330 80' fill='none' stroke='%23c9a84c' stroke-width='1' opacity='0.08'/%3E%3Cpath d='M150 150 Q170 130 190 150 T230 150' fill='none' stroke='%23c9a84c' stroke-width='0.8' opacity='0.06'/%3E%3Ccircle cx='320' cy='60' r='20' fill='%23c9a84c' opacity='0.05'/%3E%3Cpath d='M0 200 Q100 180 200 195 T400 190' fill='none' stroke='%232dd4bf' stroke-width='0.5' opacity='0.06'/%3E%3Cpath d='M0 230 Q100 210 200 225 T400 220' fill='none' stroke='%232dd4bf' stroke-width='0.4' opacity='0.04'/%3E%3C/svg%3E");
+}
+[data-theme="graphite"]{
+  --bg:#1a1a1c;--bg2:rgba(32,32,36,.65);--bg3:rgba(40,40,46,.55);--bg4:rgba(50,50,58,.5);
+  --accent:#7a8a99;--accent2:#9aaab5;--accent3:#5a6a78;--accent-bg:rgba(122,138,153,.1);
+  --red:#c45c5c;--text:#d4d4d8;--text2:#8a8a92;--text3:#5a5a62;--border:rgba(122,138,153,.12);
+  --shadow:0 8px 32px rgba(0,0,0,.35);--grad:linear-gradient(135deg,#7a8a99,#5a6a78);
+  --glass-bg:rgba(32,32,36,.55);--glass-border:rgba(122,138,153,.08);
+  --decor:"◆";--bg-pattern:radial-gradient(ellipse at 20% 20%,rgba(122,138,153,.05) 0%,transparent 50%),radial-gradient(ellipse at 80% 80%,rgba(90,106,120,.04) 0%,transparent 50%);
+  --bg-overlay:
+    radial-gradient(ellipse 600px 400px at 20% 30%,rgba(122,138,153,.06) 0%,transparent 55%),
+    radial-gradient(ellipse 500px 500px at 80% 70%,rgba(90,106,120,.04) 0%,transparent 50%),
+    linear-gradient(rgba(122,138,153,.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(122,138,153,.02) 1px, transparent 1px),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Ccircle cx='100' cy='100' r='80' fill='none' stroke='%237a8a99' stroke-width='0.5' opacity='0.04'/%3E%3Ccircle cx='100' cy='100' r='60' fill='none' stroke='%237a8a99' stroke-width='0.5' opacity='0.03'/%3E%3Ccircle cx='100' cy='100' r='40' fill='none' stroke='%237a8a99' stroke-width='0.5' opacity='0.02'/%3E%3Cline x1='0' y1='100' x2='200' y2='100' stroke='%237a8a99' stroke-width='0.3' opacity='0.03'/%3E%3Cline x1='100' y1='0' x2='100' y2='200' stroke='%237a8a99' stroke-width='0.3' opacity='0.03'/%3E%3C/svg%3E");
+  --bg-size: auto, auto, 40px 40px, 40px 40px, auto;
+}
+[data-theme="deepsea"]{
+  --bg:#0a1628;--bg2:rgba(12,28,52,.6);--bg3:rgba(16,36,64,.5);--bg4:rgba(20,44,76,.45);
+  --accent:#38bdf8;--accent2:#7dd3fc;--accent3:#0ea5e9;--accent-bg:rgba(56,189,248,.12);
+  --red:#f87171;--text:#e0f2fe;--text2:#94a3b8;--text3:#64748b;--border:rgba(56,189,248,.15);
+  --shadow:0 8px 32px rgba(0,0,0,.45);--grad:linear-gradient(135deg,#38bdf8,#0ea5e9);
+  --glass-bg:rgba(12,28,52,.5);--glass-border:rgba(56,189,248,.1);
+  --decor:"❖";--bg-pattern:radial-gradient(ellipse at 15% 25%,rgba(56,189,248,.1) 0%,transparent 50%),radial-gradient(ellipse at 85% 75%,rgba(14,165,233,.08) 0%,transparent 50%),radial-gradient(ellipse at 50% 50%,rgba(125,211,252,.04) 0%,transparent 70%);
+  --bg-overlay:
+    radial-gradient(ellipse 800px 600px at 15% 20%,rgba(56,189,248,.12) 0%,transparent 55%),
+    radial-gradient(ellipse 700px 500px at 85% 80%,rgba(14,165,233,.1) 0%,transparent 50%),
+    radial-gradient(ellipse 400px 300px at 50% 50%,rgba(125,211,252,.06) 0%,transparent 60%),
+    radial-gradient(circle 2px at 20% 30%, rgba(125,211,252,.3) 0%, transparent 100%),
+    radial-gradient(circle 1.5px at 60% 70%, rgba(56,189,248,.25) 0%, transparent 100%),
+    radial-gradient(circle 1px at 80% 20%, rgba(125,211,252,.2) 0%, transparent 100%),
+    radial-gradient(circle 2px at 40% 80%, rgba(56,189,248,.2) 0%, transparent 100%),
+    radial-gradient(circle 1.5px at 90% 50%, rgba(125,211,252,.15) 0%, transparent 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Cpath d='M0 100 Q75 75 150 100 T300 100' fill='none' stroke='%2338bdf8' stroke-width='0.8' opacity='0.08'/%3E%3Cpath d='M0 130 Q75 105 150 130 T300 130' fill='none' stroke='%2338bdf8' stroke-width='0.6' opacity='0.06'/%3E%3Cpath d='M0 160 Q75 135 150 160 T300 160' fill='none' stroke='%2338bdf8' stroke-width='0.5' opacity='0.04'/%3E%3Cpath d='M0 190 Q75 165 150 190 T300 190' fill='none' stroke='%2338bdf8' stroke-width='0.4' opacity='0.03'/%3E%3Ccircle cx='50' cy='50' r='30' fill='none' stroke='%237dd3fc' stroke-width='0.5' opacity='0.05'/%3E%3Ccircle cx='250' cy='250' r='40' fill='none' stroke='%237dd3fc' stroke-width='0.5' opacity='0.04'/%3E%3Ccircle cx='200' cy='80' r='3' fill='%237dd3fc' opacity='0.1'/%3E%3Ccircle cx='100' cy='220' r='2' fill='%2338bdf8' opacity='0.08'/%3E%3C/svg%3E");
+}
+body{font-family:"Microsoft YaHei","PingFang SC","STKaiti","KaiTi",serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;font-size:15px;line-height:1.7;transition:background .4s,color .4s;position:relative}
+body::before{content:'';position:fixed;inset:0;background:var(--bg-overlay);background-size:var(--bg-size, auto);pointer-events:none;z-index:0;animation:bgShift 25s ease-in-out infinite alternate}
+body::after{content:'';position:fixed;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.03) 0%,transparent 40%,rgba(0,0,0,.1) 100%);pointer-events:none;z-index:0}
+@keyframes bgShift{0%{transform:scale(1) rotate(0deg)}100%{transform:scale(1.1) rotate(2deg)}}
+.app{display:flex;height:100vh;position:relative;z-index:1}
+.app{display:flex;height:100vh}
+
+/* 侧边栏 */
+.sidebar{width:240px;background:rgba(255,255,255,.05);backdrop-filter:blur(50px) saturate(200%) brightness(1.15);-webkit-backdrop-filter:blur(50px) saturate(200%) brightness(1.15);border-right:1px solid rgba(255,255,255,.1);overflow-y:auto;flex-shrink:0;display:flex;flex-direction:column;position:relative;box-shadow:inset -1px 0 0 rgba(255,255,255,.06),10px 0 50px rgba(0,0,0,.12)}
+.sidebar::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent);pointer-events:none}
+.sidebar::after{content:'';position:absolute;top:0;right:0;bottom:0;width:1px;background:linear-gradient(180deg,rgba(255,255,255,.15),transparent,rgba(255,255,255,.05));pointer-events:none}
+.sidebar::after{content:'';position:absolute;top:0;right:0;width:1px;height:100%;background:linear-gradient(to bottom,transparent,var(--accent3),transparent);opacity:.5}
+.sidebar::-webkit-scrollbar{width:4px}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.logo{padding:22px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);position:relative}
+.logo::after{content:'';position:absolute;bottom:-1px;left:18px;right:18px;height:1px;background:linear-gradient(to right,var(--accent3),transparent)}
+.logo-icon{width:42px;height:42px;background:var(--grad);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--bg);font-weight:bold;font-size:20px;box-shadow:0 2px 12px var(--accent-bg);position:relative}
+.logo-icon::after{content:'';position:absolute;inset:2px;border:1px solid rgba(255,255,255,.2);border-radius:6px}
+.logo-text h1{font-size:18px;color:var(--accent);letter-spacing:3px;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,.4),0 0 20px var(--accent-bg)}
+.logo-text p{font-size:10px;color:var(--text3);letter-spacing:4px;margin-top:3px;text-shadow:0 1px 1px rgba(0,0,0,.3)}
+.nav-section{padding:10px 0}
+.nav-title{padding:10px 18px 6px;font-size:11px;color:var(--text3);letter-spacing:3px;text-transform:uppercase;display:flex;align-items:center;gap:6px}
+.nav-title::before{content:'';width:3px;height:10px;background:var(--accent3);border-radius:2px}
+.nav-item{padding:11px 16px;cursor:pointer;color:var(--text2);display:flex;align-items:center;gap:10px;transition:all .25s cubic-bezier(.25,.8,.25,1);font-size:14px;margin:3px 8px;border-radius:10px;background:rgba(255,255,255,.04);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.06);box-shadow:inset 0 1px 0 rgba(255,255,255,.08);text-shadow:0 1px 2px rgba(0,0,0,.3)}
+.nav-item:hover{background:rgba(255,255,255,.1);color:var(--text);transform:translateX(2px);border-color:rgba(255,255,255,.12);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 2px 12px rgba(0,0,0,.1)}
+.nav-item.active{background:linear-gradient(135deg,rgba(255,255,255,.2) 0%,rgba(255,255,255,.08) 100%);color:var(--accent2);box-shadow:0 6px 20px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.25),inset 0 -1px 0 rgba(0,0,0,.1);border:1px solid rgba(255,255,255,.2);text-shadow:0 1px 3px rgba(0,0,0,.4),0 0 10px var(--accent-bg)}
+.nav-item.active .icon{transform:scale(1.15);filter:drop-shadow(0 0 8px var(--accent))}
+.nav-item.active .count{background:var(--grad);color:var(--bg);font-weight:600;box-shadow:0 2px 8px var(--accent-bg)}
+.nav-item.active .icon{transform:scale(1.1)}
+.nav-item .icon{width:18px;text-align:center;opacity:.8;font-size:15px;transition:transform .25s}
+.nav-item .count{margin-left:auto;font-size:11px;background:var(--bg4);padding:2px 8px;border-radius:10px;color:var(--text3);min-width:20px;text-align:center;transition:all .25s}
+.nav-item:hover .count{background:var(--accent-bg);color:var(--accent2)}
+.nav-item.active .count{background:var(--grad);color:var(--bg);font-weight:600}
+.data-mgmt{margin-top:auto;border-top:1px solid var(--border);padding:8px 0}
+.data-mgmt .nav-item{font-size:12px;padding:7px 16px 7px 20px}
+
+/* 主内容 */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative}
+.topbar{padding:14px 28px;background:rgba(255,255,255,.04);backdrop-filter:blur(40px) saturate(200%) brightness(1.1);-webkit-backdrop-filter:blur(40px) saturate(200%) brightness(1.1);border-bottom:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:space-between;position:relative;z-index:10;box-shadow:inset 0 -1px 0 rgba(255,255,255,.06),0 8px 30px rgba(0,0,0,.12)}
+.topbar::before{content:'';position:absolute;top:0;left:28px;right:28px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);pointer-events:none}
+.topbar::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,rgba(255,255,255,.05),transparent,rgba(255,255,255,.05));pointer-events:none}
+.topbar::after{content:'';position:absolute;bottom:-1px;left:28px;right:28px;height:1px;background:linear-gradient(to right,var(--accent3),transparent,var(--accent3));opacity:.6}
+.topbar h2{font-size:18px;color:var(--accent);letter-spacing:2px;font-weight:700;display:flex;align-items:center;gap:10px;text-shadow:0 1px 3px rgba(0,0,0,.4),0 0 15px var(--accent-bg)}
+.topbar h2::before{content:var(--decor);color:var(--accent3);font-size:14px}
+.topbar .mode{font-size:12px;color:var(--text3)}
+.topbar .mode span{color:var(--accent2)}
+.theme-switcher{display:flex;gap:8px;align-items:center}
+.font-switcher{display:flex;gap:4px;align-items:center;padding:3px;background:var(--bg3);border-radius:6px;border:1px solid var(--border)}
+.font-btn{background:transparent;border:none;color:var(--text3);cursor:pointer;padding:4px 8px;border-radius:4px;font-size:12px;transition:all .2s;font-family:inherit}
+.font-btn:hover{color:var(--text)}
+.font-btn.active{background:var(--accent-bg);color:var(--accent)}
+.theme-btn{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);cursor:pointer;padding:0;transition:all .25s;position:relative}
+.theme-btn:hover{transform:scale(1.15);border-color:var(--accent)}
+.theme-btn.active{border-color:var(--accent2);box-shadow:0 0 10px var(--accent);transform:scale(1.1)}
+.theme-btn.active::after{content:'';position:absolute;inset:3px;border-radius:50%;border:1px solid rgba(255,255,255,.4)}
+.content{flex:1;overflow-y:auto;padding:24px 28px;animation:fadeIn .4s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.content::-webkit-scrollbar{width:8px}
+.content::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.content::-webkit-scrollbar-thumb:hover{background:var(--accent3)}
+.content::-webkit-scrollbar-track{background:transparent}
+
+/* 加载状态 */
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px;color:var(--text3)}
+.loading-spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading p{font-size:14px;letter-spacing:2px}
+
+/* 总览页 */
+.overview-header{display:flex;align-items:center;gap:18px;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border);position:relative}
+.overview-header::after{content:'';position:absolute;bottom:-1px;left:0;width:100px;height:2px;background:var(--grad)}
+.overview-seal{width:60px;height:60px;background:var(--grad);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--bg);font-size:28px;font-weight:bold;box-shadow:0 4px 20px var(--accent-bg);position:relative;flex-shrink:0}
+.overview-seal::after{content:'';position:absolute;inset:3px;border:1px solid rgba(255,255,255,.3);border-radius:9px}
+.overview-title{flex:1}
+.overview-title h2{font-size:30px;color:var(--accent);letter-spacing:5px;font-weight:700;text-shadow:0 2px 4px rgba(0,0,0,.5),0 0 30px var(--accent-bg)}
+.overview-title p{font-size:13px;color:var(--text3);margin-top:5px;letter-spacing:3px;text-shadow:0 1px 2px rgba(0,0,0,.3)}
+.overview-stats{display:flex;gap:24px}
+.ov-stat{display:flex;flex-direction:column;align-items:center;gap:4px;padding:0 16px;border-left:1px solid var(--border)}
+.ov-stat:first-child{border-left:none}
+.ov-num{font-size:24px;font-weight:bold;color:var(--accent2);line-height:1}
+.ov-label{font-size:11px;color:var(--text3);letter-spacing:1px}
+
+/* 数据进度区域 */
+.progress-section{margin-bottom:22px}
+.section-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;font-size:15px;color:var(--accent);font-weight:600;letter-spacing:1px}
+.section-title::before{content:var(--decor);color:var(--accent3);margin-right:8px}
+.section-sub{font-size:12px;color:var(--text3);font-weight:normal}
+.readiness-grid{display:grid;grid-template-columns:280px 1fr 300px;gap:18px;align-items:stretch}
+.readiness-score{background:linear-gradient(135deg,rgba(255,255,255,.06) 0%,rgba(255,255,255,.02) 100%);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 4px 20px rgba(0,0,0,.15)}
+.score-ring{position:relative;width:120px;height:120px;margin-bottom:12px}
+.ring-svg{width:100%;height:100%;filter:drop-shadow(0 0 12px var(--accent-bg))}
+.score-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:bold;color:var(--accent2);text-shadow:0 0 20px var(--accent-bg)}
+.score-num span{font-size:16px;margin-left:2px}
+.score-label{font-size:15px;color:var(--text);font-weight:600;margin-bottom:4px}
+.score-desc{font-size:11px;color:var(--text3);text-align:center;line-height:1.5}
+.readiness-dims{display:flex;flex-direction:column;gap:10px;justify-content:center}
+.dim-item{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:10px 14px;transition:all .25s}
+.dim-item:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1)}
+.dim-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.dim-name{font-size:13px;color:var(--text2);font-weight:500}
+.dim-score{font-size:13px;color:var(--accent2);font-weight:600;font-family:monospace}
+.dim-bar{height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-bottom:6px}
+.dim-fill{height:100%;background:var(--grad);border-radius:3px;transition:width .6s ease;box-shadow:0 0 8px var(--accent-bg)}
+.dim-desc{font-size:11px;color:var(--text3)}
+.readiness-tips{background:linear-gradient(135deg,rgba(255,255,255,.06) 0%,rgba(255,255,255,.02) 100%);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:18px;box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 4px 20px rgba(0,0,0,.15)}
+.tips-title{font-size:14px;color:var(--accent);font-weight:600;margin-bottom:12px;letter-spacing:1px}
+.tip-item{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:8px;margin-bottom:6px;background:rgba(255,255,255,.03);transition:all .2s}
+.tip-item:hover{background:rgba(255,255,255,.06)}
+.tip-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+.tip-text{font-size:12px;color:var(--text2);line-height:1.5}
+.tip-warn{border-left:2px solid #e8a040}
+.tip-info{border-left:2px solid var(--accent3)}
+.tip-ok{border-left:2px solid #4a8}
+
+/* 老板键代码伪装界面 */
+.boss-overlay{position:fixed;inset:0;z-index:9999;display:none;flex-direction:column;background:var(--bg);font-family:'Consolas','Monaco','Courier New',monospace}
+.boss-titlebar{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.08)}
+.boss-tabs{display:flex;gap:4px}
+.boss-tab{padding:4px 14px;font-size:12px;color:var(--text3);background:rgba(255,255,255,.03);border-radius:6px 6px 0 0;cursor:default}
+.boss-tab.active{color:var(--text);background:rgba(255,255,255,.06);border-bottom:2px solid var(--accent3)}
+.boss-window-controls{display:flex;gap:6px}
+.boss-dot{width:12px;height:12px;border-radius:50%;display:inline-block}
+.boss-codearea{flex:1;display:flex;overflow:hidden}
+.boss-linenos{padding:12px 8px;text-align:right;color:var(--text3);font-size:13px;line-height:1.6;user-select:none;min-width:40px;border-right:1px solid rgba(255,255,255,.05)}
+.boss-linenos div{height:1.6em}
+.boss-code{flex:1;padding:12px 16px;margin:0;font-size:13px;line-height:1.6;color:var(--text2);white-space:pre;overflow:auto;tab-size:2}
+.boss-statusbar{display:flex;align-items:center;gap:16px;padding:4px 16px;font-size:11px;color:var(--text3);background:rgba(255,255,255,.04);border-top:1px solid rgba(255,255,255,.08)}
+.stats-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:rgba(255,255,255,.06);backdrop-filter:blur(40px) saturate(200%) brightness(1.15);-webkit-backdrop-filter:blur(40px) saturate(200%) brightness(1.15);border:1px solid rgba(255,255,255,.14);border-radius:18px;padding:22px;position:relative;overflow:hidden;transition:all .4s cubic-bezier(.25,.8,.25,1);cursor:default;box-shadow:0 10px 40px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.2),inset 0 -1px 0 rgba(0,0,0,.08),inset 1px 0 0 rgba(255,255,255,.06),inset -1px 0 0 rgba(0,0,0,.04)}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,.08) 0%,transparent 100%);pointer-events:none;border-radius:14px 14px 0 0}
+.stat-card::after{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:var(--grad);opacity:.8}
+.stat-card:nth-child(2)::after{background:linear-gradient(180deg,#e66,#a33)}
+.stat-card:nth-child(3)::after{background:linear-gradient(180deg,#6c8,#386)}
+.stat-card:nth-child(4)::after{background:linear-gradient(180deg,#a8e,#65a)}
+.stat-card:nth-child(5)::after{background:linear-gradient(180deg,#e8e,#a6a)}
+.stat-card:nth-child(6)::after{background:linear-gradient(180deg,var(--accent2),var(--accent3))}
+.stat-card:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.2),inset 0 -1px 0 rgba(0,0,0,.1);border-color:rgba(255,255,255,.2)}
+.stat-icon{font-size:22px;margin-bottom:12px;opacity:.8}
+.stat-value{font-size:36px;font-weight:bold;color:var(--accent2);line-height:1.1;text-shadow:0 2px 4px rgba(0,0,0,.4),0 0 20px var(--accent-bg)}
+
+/* 墨玉青主题精修 */
+[data-theme="jade"] body{background:linear-gradient(135deg,#0c1616 0%,#0a1212 50%,#081010 100%)}
+[data-theme="jade"] .sidebar{background:linear-gradient(180deg,rgba(12,22,22,.85) 0%,rgba(8,16,16,.9) 100%)}
+[data-theme="jade"] .nav-item.active{background:linear-gradient(135deg,rgba(45,212,191,.18) 0%,rgba(13,148,136,.08) 100%);border-color:rgba(45,212,191,.3);box-shadow:0 4px 16px rgba(45,212,191,.15),inset 0 1px 0 rgba(255,255,255,.15)}
+[data-theme="jade"] .nav-item.active .icon{filter:drop-shadow(0 0 8px rgba(45,212,191,.6))}
+[data-theme="jade"] .btn-primary{background:linear-gradient(135deg,#2dd4bf,#0d9488);box-shadow:0 4px 16px rgba(45,212,191,.25),inset 0 1px 0 rgba(255,255,255,.25)}
+[data-theme="jade"] .btn-primary:hover{box-shadow:0 8px 28px rgba(45,212,191,.35),inset 0 1px 0 rgba(255,255,255,.3)}
+[data-theme="jade"] .tag{background:rgba(45,212,191,.1);border-color:rgba(45,212,191,.2);color:#5eead4}
+[data-theme="jade"] thead th{color:#5eead4;border-color:rgba(45,212,191,.12)}
+[data-theme="jade"] tbody tr:hover{background:rgba(45,212,191,.05)}
+[data-theme="jade"] .stat-value{text-shadow:0 2px 4px rgba(0,0,0,.4),0 0 20px rgba(45,212,191,.3)}
+[data-theme="jade"] .topbar h2{text-shadow:0 1px 3px rgba(0,0,0,.5),0 0 15px rgba(45,212,191,.25)}
+[data-theme="jade"] .logo-text h1{text-shadow:0 1px 2px rgba(0,0,0,.5),0 0 20px rgba(45,212,191,.3)}
+[data-theme="jade"] .modal{background:rgba(12,22,22,.9);border-color:rgba(45,212,191,.15)}
+[data-theme="jade"] .form-group input,[data-theme="jade"] .form-group select,[data-theme="jade"] .form-group textarea{background:rgba(45,212,191,.05);border-color:rgba(45,212,191,.12)}
+[data-theme="jade"] .form-group input:focus,[data-theme="jade"] .form-group select:focus,[data-theme="jade"] .form-group textarea:focus{border-color:rgba(45,212,191,.3);box-shadow:0 0 0 4px rgba(45,212,191,.1)}
+[data-theme="jade"] .modal-footer{background:rgba(8,16,16,.8);border-color:rgba(45,212,191,.1)}
+
+/* 石墨灰主题精修（低调办公风） */
+[data-theme="graphite"] body{background:linear-gradient(135deg,#1a1a1c 0%,#161618 50%,#121214 100%)}
+[data-theme="graphite"] .sidebar{background:linear-gradient(180deg,rgba(26,26,28,.9) 0%,rgba(20,20,22,.92) 100%)}
+[data-theme="graphite"] .nav-item.active{background:rgba(122,138,153,.12);border-color:rgba(122,138,153,.2);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+[data-theme="graphite"] .nav-item.active .icon{filter:none}
+[data-theme="graphite"] .btn-primary{background:linear-gradient(135deg,#6a7a88,#4a5a68);box-shadow:0 2px 8px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.1)}
+[data-theme="graphite"] .btn-primary:hover{box-shadow:0 4px 12px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.12)}
+[data-theme="graphite"] .tag{background:rgba(122,138,153,.08);border-color:rgba(122,138,153,.15);color:#9aaab5}
+[data-theme="graphite"] thead th{color:#9aaab5;border-color:rgba(122,138,153,.1)}
+[data-theme="graphite"] tbody tr:hover{background:rgba(122,138,153,.04)}
+[data-theme="graphite"] .stat-value{text-shadow:none}
+[data-theme="graphite"] .topbar h2{text-shadow:none}
+[data-theme="graphite"] .logo-text h1{text-shadow:none}
+[data-theme="graphite"] .modal{background:rgba(26,26,28,.95);border-color:rgba(122,138,153,.12)}
+[data-theme="graphite"] .form-group input,[data-theme="graphite"] .form-group select,[data-theme="graphite"] .form-group textarea{background:rgba(255,255,255,.03);border-color:rgba(122,138,153,.1)}
+[data-theme="graphite"] .form-group input:focus,[data-theme="graphite"] .form-group select:focus,[data-theme="graphite"] .form-group textarea:focus{border-color:rgba(122,138,153,.25);box-shadow:0 0 0 3px rgba(122,138,153,.08)}
+[data-theme="graphite"] .modal-footer{background:rgba(20,20,22,.9);border-color:rgba(122,138,153,.08)}
+[data-theme="graphite"] .stat-card,[data-theme="graphite"] .chart-card,[data-theme="graphite"] .list-card,[data-theme="graphite"] .table-wrap{box-shadow:0 4px 16px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.04)}
+.stat-card:nth-child(2) .stat-value{color:#e88}
+.stat-card:nth-child(3) .stat-value{color:#8da}
+.stat-card:nth-child(4) .stat-value{color:#bce}
+.stat-card:nth-child(5) .stat-value{color:#ece}
+.stat-label{font-size:14px;color:var(--text2);margin-top:8px}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:3px}
+
+.charts-row{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;margin-bottom:18px}
+.chart-card{background:rgba(255,255,255,.05);backdrop-filter:blur(40px) saturate(200%) brightness(1.12);-webkit-backdrop-filter:blur(40px) saturate(200%) brightness(1.12);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:22px;box-shadow:0 10px 40px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.18),inset 0 -1px 0 rgba(0,0,0,.06),inset 1px 0 0 rgba(255,255,255,.05),inset -1px 0 0 rgba(0,0,0,.04);position:relative;overflow:hidden;transition:all .4s cubic-bezier(.25,.8,.25,1)}
+.chart-card::before{content:'';position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,.06) 0%,transparent 100%);pointer-events:none;border-radius:14px 14px 0 0}
+.chart-card:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.18),inset 0 -1px 0 rgba(0,0,0,.1);border-color:rgba(255,255,255,.18)}
+.chart-card:hover{border-color:var(--accent3);transform:translateY(-2px);box-shadow:0 6px 20px var(--accent-bg)}
+.chart-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);opacity:.7}
+.chart-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.chart-title{font-size:15px;color:var(--accent);display:flex;align-items:center;gap:8px;font-weight:600;letter-spacing:1px;text-shadow:0 1px 2px rgba(0,0,0,.3)}
+.chart-title::before{content:var(--decor);color:var(--accent3);font-size:13px}
+.chart-more{font-size:12px;color:var(--accent2);cursor:pointer;transition:all .2s;padding:4px 10px;border-radius:6px}
+.chart-more:hover{background:var(--accent-bg)}
+.chart-container{height:320px}
+.legend-row{display:flex;gap:18px;font-size:12px;color:var(--text2);margin-bottom:10px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:6px}
+.legend-dot{width:10px;height:10px;border-radius:50%;box-shadow:0 0 4px currentColor}
+
+.bottom-row{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.list-card{background:rgba(255,255,255,.05);backdrop-filter:blur(40px) saturate(200%) brightness(1.12);-webkit-backdrop-filter:blur(40px) saturate(200%) brightness(1.12);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:22px;box-shadow:0 10px 40px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.18),inset 0 -1px 0 rgba(0,0,0,.06),inset 1px 0 0 rgba(255,255,255,.05),inset -1px 0 0 rgba(0,0,0,.04);position:relative;overflow:hidden;transition:all .4s cubic-bezier(.25,.8,.25,1)}
+.list-card::before{content:'';position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,.06) 0%,transparent 100%);pointer-events:none;border-radius:14px 14px 0 0}
+.list-card:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.18),inset 0 -1px 0 rgba(0,0,0,.1);border-color:rgba(255,255,255,.18)}
+.list-card:hover{border-color:var(--accent3);transform:translateY(-2px);box-shadow:0 6px 20px var(--accent-bg)}
+.list-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);opacity:.7}
+.list-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.05);transition:all .2s;border-radius:6px;margin:2px 0;background:rgba(255,255,255,.02)}
+.list-item:hover{padding-left:16px;background:rgba(255,255,255,.06);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+.list-item:last-child{border-bottom:none}
+.list-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;box-shadow:0 0 6px currentColor}
+.list-text{flex:1;font-size:14px;color:var(--text2)}
+.list-meta{font-size:12px;color:var(--text3)}
+
+/* 表格页 */
+.table-toolbar{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.table-toolbar .search{flex:1;max-width:300px;padding:9px 16px;background:rgba(255,255,255,.04);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--glass-border);border-radius:8px;color:var(--text);font-size:14px;outline:none;transition:all .25s;font-family:inherit}
+.table-toolbar .search:focus{border-color:var(--accent3);box-shadow:0 0 0 4px var(--accent-bg);background:rgba(255,255,255,.06)}
+.btn{padding:9px 22px;background:linear-gradient(180deg,rgba(255,255,255,.12) 0%,rgba(255,255,255,.04) 100%);backdrop-filter:blur(16px) saturate(180%);-webkit-backdrop-filter:blur(16px) saturate(180%);border:1px solid rgba(255,255,255,.18);color:var(--accent);border-radius:12px;cursor:pointer;font-size:14px;font-weight:500;transition:all .3s cubic-bezier(.25,.8,.25,1);font-family:inherit;box-shadow:0 2px 8px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.2),inset 0 -1px 0 rgba(0,0,0,.08);position:relative;overflow:hidden;text-shadow:0 1px 1px rgba(0,0,0,.25)}
+.btn::before{content:'';position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,.08) 0%,transparent 100%);pointer-events:none;border-radius:12px 12px 0 0}
+.btn:hover{background:linear-gradient(180deg,rgba(255,255,255,.18) 0%,rgba(255,255,255,.06) 100%);border-color:rgba(255,255,255,.28);box-shadow:0 6px 20px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.25),inset 0 -1px 0 rgba(0,0,0,.1);transform:translateY(-1px)}
+.btn:active{transform:translateY(0);box-shadow:0 1px 4px rgba(0,0,0,.15),inset 0 1px 0 rgba(255,255,255,.15)}
+.btn-primary{background:var(--grad);color:#fff;border-color:transparent;box-shadow:0 4px 16px var(--accent-bg),inset 0 1px 0 rgba(255,255,255,.3),inset 0 -1px 0 rgba(0,0,0,.15);text-shadow:0 1px 2px rgba(0,0,0,.3)}
+.btn-primary::before{background:linear-gradient(180deg,rgba(255,255,255,.2) 0%,transparent 100%)}
+.btn-primary:hover{box-shadow:0 8px 28px var(--accent-bg),inset 0 1px 0 rgba(255,255,255,.35),inset 0 -1px 0 rgba(0,0,0,.18);transform:translateY(-1px)}
+.btn-danger{background:linear-gradient(180deg,rgba(255,59,48,.15) 0%,rgba(255,59,48,.05) 100%);border-color:rgba(255,59,48,.3);color:#ff7b70;box-shadow:0 2px 8px rgba(255,59,48,.1),inset 0 1px 0 rgba(255,255,255,.1)}
+.btn-danger:hover{background:linear-gradient(180deg,rgba(255,59,48,.22) 0%,rgba(255,59,48,.08) 100%);border-color:rgba(255,59,48,.45);box-shadow:0 6px 20px rgba(255,59,48,.2),inset 0 1px 0 rgba(255,255,255,.15)}
+.btn-sm{padding:6px 16px;font-size:13px;border-radius:10px}
+tbody .btn-sm{padding:4px 12px;font-size:12px}
+tbody .btn-sm.btn-primary{background:var(--accent-bg);color:var(--accent);border-color:var(--accent3)}
+tbody .btn-sm.btn-primary:hover{background:var(--grad);color:var(--bg)}
+tbody .btn-sm.btn-danger{background:transparent}
+tbody .btn-sm.btn-danger:hover{background:var(--red);color:#fff}
+
+.empty{text-align:center;padding:80px 20px;color:var(--text3)}
+.empty-icon{font-size:56px;margin-bottom:16px;opacity:.4;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.empty p{font-size:15px;margin-top:8px;letter-spacing:1px}
+.table-wrap{background:rgba(255,255,255,.04);backdrop-filter:blur(40px) saturate(200%) brightness(1.1);-webkit-backdrop-filter:blur(40px) saturate(200%) brightness(1.1);border:1px solid rgba(255,255,255,.12);border-radius:18px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.15),inset 1px 0 0 rgba(255,255,255,.05),inset -1px 0 0 rgba(0,0,0,.04)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+thead th{position:sticky;top:0;background:rgba(255,255,255,.06);backdrop-filter:blur(16px) saturate(150%);-webkit-backdrop-filter:blur(16px) saturate(150%);padding:14px 16px;text-align:left;color:var(--accent);font-weight:600;border-bottom:1px solid rgba(255,255,255,.1);white-space:nowrap;z-index:1;font-size:13px;letter-spacing:1px;box-shadow:inset 0 1px 0 rgba(255,255,255,.1)}
+thead th.sortable{cursor:pointer;user-select:none;transition:all .2s}
+thead th.sortable:hover{background:var(--bg4);color:var(--accent2)}
+thead th.sortable:active{transform:scale(.98)}
+tbody td{padding:12px 16px;border-bottom:1px solid var(--border);color:var(--text2);max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:color .2s}
+tbody tr{transition:all .25s;background:rgba(255,255,255,.02);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+tbody tr:nth-child(even){background:rgba(255,255,255,.03)}
+tbody tr:hover{background:rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.1),inset 0 -1px 0 rgba(0,0,0,.05)}
+tbody tr:hover td{color:var(--text)}
+.tag{display:inline-block;padding:3px 12px;border-radius:12px;font-size:12px;background:rgba(255,255,255,.06);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:var(--accent2);border:1px solid rgba(255,255,255,.1);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+.empty{text-align:center;padding:80px 20px;color:var(--text3)}
+.empty-icon{font-size:56px;margin-bottom:16px;opacity:.4}
+.empty p{font-size:15px;margin-top:8px}
+.pagination{padding:14px 20px;background:rgba(255,255,255,.02);border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;font-size:13px;color:var(--text3);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.pagination button{padding:6px 14px;background:rgba(255,255,255,.05);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.1);color:var(--text2);border-radius:6px;cursor:pointer;font-size:13px;margin-left:6px;transition:all .2s;font-family:inherit;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+.pagination button:hover:not(:disabled){border-color:rgba(255,255,255,.2);color:var(--accent);background:rgba(255,255,255,.08)}
+.pagination button:disabled{opacity:.35;cursor:not-allowed}
+
+/* Toast提示 */
+.toast{position:fixed;top:24px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--accent3);color:var(--accent2);padding:12px 28px;border-radius:8px;font-size:14px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.3);animation:toastIn .3s ease;letter-spacing:1px}
+.toast.err{border-color:var(--red);color:#f88}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(-20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.pagination button:hover{border-color:var(--accent3);color:var(--accent)}
+.pagination button:disabled{opacity:.3;cursor:not-allowed}
+
+/* 弹窗 */
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.35);backdrop-filter:blur(12px) saturate(150%);-webkit-backdrop-filter:blur(12px) saturate(150%);display:none;align-items:center;justify-content:center;z-index:1000}
+.modal-overlay.show{display:flex}
+.modal{background:rgba(20,20,35,.6);backdrop-filter:blur(48px) saturate(200%) brightness(1.1);-webkit-backdrop-filter:blur(48px) saturate(200%) brightness(1.1);border:1px solid rgba(255,255,255,.15);border-radius:18px;width:760px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 30px 80px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.2),inset 0 -1px 0 rgba(0,0,0,.15),inset 1px 0 0 rgba(255,255,255,.08),inset -1px 0 0 rgba(0,0,0,.08);animation:modalIn .35s cubic-bezier(.25,.8,.25,1);position:relative;overflow:hidden}
+.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:60%;background:linear-gradient(180deg,rgba(255,255,255,.06) 0%,transparent 100%);pointer-events:none;border-radius:16px 16px 0 0}
+@keyframes modalIn{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.modal-header{padding:18px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-header h3{color:var(--accent);font-size:17px;letter-spacing:2px;font-weight:700;display:flex;align-items:center;gap:8px;text-shadow:0 1px 3px rgba(0,0,0,.5),0 0 15px var(--accent-bg)}
+.modal-header h3::before{content:var(--decor);color:var(--accent3);font-size:14px}
+.modal-close{background:none;border:none;color:var(--text3);font-size:24px;cursor:pointer;line-height:1;transition:all .2s;width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center}
+.modal-close:hover{color:var(--red);background:var(--bg3);transform:rotate(90deg)}
+.modal-body{padding:28px;overflow-y:auto;flex:1}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px 28px}
+.form-group{display:flex;flex-direction:column;gap:7px}
+.form-group.full{grid-column:1/-1}
+.form-group label{font-size:13px;color:var(--text2);font-weight:500;letter-spacing:.5px;text-shadow:0 1px 2px rgba(0,0,0,.3)}
+.form-group label .req{color:var(--red);margin-left:2px}
+.form-group input,.form-group select,.form-group textarea{padding:10px 14px;background:rgba(255,255,255,.06);backdrop-filter:blur(12px) saturate(150%);-webkit-backdrop-filter:blur(12px) saturate(150%);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:var(--text);font-size:14px;outline:none;font-family:inherit;transition:all .25s;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),inset 0 -1px 0 rgba(0,0,0,.05)}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:rgba(255,255,255,.25);box-shadow:0 0 0 4px var(--accent-bg),inset 0 1px 0 rgba(255,255,255,.12);background:rgba(255,255,255,.09)}
+.form-group textarea{resize:vertical;min-height:80px;line-height:1.7}
+.checkbox-row{display:flex;align-items:center;gap:10px;padding:10px 0}
+.checkbox-row input{width:18px;height:18px;accent-color:var(--accent);cursor:pointer}
+.multi-select{display:flex;flex-wrap:wrap;gap:8px;padding:10px;background:rgba(255,255,255,.06);backdrop-filter:blur(12px) saturate(150%);-webkit-backdrop-filter:blur(12px) saturate(150%);border:1px solid rgba(255,255,255,.12);border-radius:10px;min-height:44px;transition:all .25s;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+.multi-select:focus-within{border-color:rgba(255,255,255,.25);box-shadow:0 0 0 4px var(--accent-bg)}
+.multi-select .opt{padding:4px 14px;border-radius:14px;font-size:13px;cursor:pointer;border:1px solid rgba(255,255,255,.08);color:var(--text3);transition:all .2s;background:rgba(255,255,255,.03);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.multi-select .opt:hover{border-color:rgba(255,255,255,.15);color:var(--text2);background:rgba(255,255,255,.06)}
+.multi-select .opt.sel{background:var(--grad);color:var(--bg);border-color:transparent;font-weight:500;box-shadow:0 2px 10px var(--accent-bg)}
+.modal-footer{padding:16px 28px;border-top:1px solid rgba(255,255,255,.08);display:flex;justify-content:flex-end;gap:12px;background:rgba(255,255,255,.03);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+
+/* 字段选项管理 */
+.fields-mgr{display:grid;grid-template-columns:210px 230px 1fr;gap:1px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:14px;overflow:hidden;height:calc(100vh - 150px);box-shadow:0 8px 32px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.1);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%)}
+.fm-col{background:linear-gradient(180deg,rgba(255,255,255,.04) 0%,rgba(255,255,255,.01) 100%);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);overflow-y:auto;display:flex;flex-direction:column}
+.fm-col::-webkit-scrollbar{width:5px}
+.fm-col::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.fm-col-header{padding:14px 18px;border-bottom:1px solid var(--border);font-size:14px;color:var(--accent);position:sticky;top:0;background:var(--bg2);z-index:1;font-weight:600;letter-spacing:1px;display:flex;align-items:center;gap:8px}
+.fm-col-header::before{content:'';display:inline-block;width:4px;height:14px;background:var(--grad);border-radius:2px}
+.fm-item{padding:11px 18px;cursor:pointer;color:var(--text2);font-size:14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);transition:all .2s;border-left:3px solid transparent}
+.fm-item:hover{background:var(--bg3);color:var(--text);padding-left:22px}
+.fm-item.active{background:var(--accent-bg);color:var(--accent);border-left-color:var(--accent);padding-left:18px}
+.fm-item .cnt{margin-left:auto;font-size:11px;color:var(--text3);background:var(--bg4);padding:2px 8px;border-radius:10px}
+.fm-item.active .cnt{background:var(--grad);color:var(--bg);font-weight:600}
+.fm-field-type{font-size:11px;color:var(--text3);margin-left:auto;padding:2px 8px;background:var(--bg4);border-radius:8px}
+.opt-list{padding:20px}
+.opt-input-row{display:flex;gap:10px;margin-bottom:18px}
+.opt-input-row input{flex:1;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);outline:none;font-size:14px;font-family:inherit;transition:all .25s}
+.opt-input-row input:focus{border-color:var(--accent3);box-shadow:0 0 0 4px var(--accent-bg)}
+.opt-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;margin-bottom:10px;transition:all .2s}
+.opt-item:hover{border-color:var(--accent3);transform:translateX(3px)}
+.opt-item .drag{color:var(--text3);cursor:grab;font-size:16px}
+.opt-item .color-box{width:16px;height:16px;border-radius:4px;border:1px solid rgba(255,255,255,.2)}
+.opt-item .opt-name{flex:1;font-size:14px;color:var(--text2);cursor:text;padding:2px 6px;border-radius:4px;transition:all .2s;outline:none}
+.opt-item .opt-name:hover{background:rgba(255,255,255,.05)}
+.opt-item .opt-name:focus{background:rgba(255,255,255,.08);box-shadow:0 0 0 2px var(--accent-bg)}
+.opt-item .opt-idx{font-size:12px;color:var(--text3);font-family:monospace}
+.opt-item .opt-del{color:var(--text3);cursor:pointer;font-size:20px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:4px;transition:all .2s}
+.opt-item .opt-del:hover{color:var(--red);background:rgba(204,68,68,.1)}
+
+/* ===== 液态玻璃增强效果 - 重质感版 ===== */
+/* 玻璃通用类 - 更通透的边缘高光和内阴影 */
+.chart-card, .list-card, .table-wrap, .stat-card, .modal, .sidebar, .topbar {
+  position: relative;
+}
+.chart-card::after, .list-card::after, .table-wrap::after, .stat-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: inherit;
+  background: 
+    linear-gradient(135deg, rgba(255,255,255,.18) 0%, rgba(255,255,255,.05) 20%, transparent 40%, transparent 60%, rgba(0,0,0,.06) 80%, rgba(0,0,0,.12) 100%),
+    linear-gradient(180deg, rgba(255,255,255,.1) 0%, transparent 30%);
+  pointer-events: none;
+  z-index: 1;
+}
+.chart-card > *, .list-card > *, .table-wrap > *, .stat-card > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* 侧边栏增强 - 更通透的玻璃质感 */
+.sidebar {
+  background: linear-gradient(180deg, rgba(255,255,255,.12) 0%, rgba(255,255,255,.06) 50%, rgba(255,255,255,.08) 100%);
+  backdrop-filter: blur(60px) saturate(220%) brightness(1.2);
+  -webkit-backdrop-filter: blur(60px) saturate(220%) brightness(1.2);
+  box-shadow: inset -1px 0 0 rgba(255,255,255,.15), inset 1px 0 0 rgba(255,255,255,.08), 15px 0 60px rgba(0,0,0,.2);
+}
+.nav-item {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255,255,255,.06);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,.1);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
+}
+.nav-item::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,.2) 0%, transparent 50%);
+  opacity: 0;
+  transition: opacity .3s;
+  pointer-events: none;
+}
+.nav-item:hover::before { opacity: 1; }
+.nav-item:hover {
+  background: rgba(255,255,255,.12);
+  border-color: rgba(255,255,255,.18);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 4px 16px rgba(0,0,0,.15);
+}
+.nav-item.active {
+  position: relative;
+  background: linear-gradient(135deg, rgba(255,255,255,.25) 0%, rgba(255,255,255,.1) 100%);
+  border-color: rgba(255,255,255,.25);
+  box-shadow: 0 8px 24px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.3), inset 0 -1px 0 rgba(0,0,0,.1);
+}
+.nav-item.active::after {
+  content: '';
+  position: absolute;
+  left: 0; top: 20%; bottom: 20%;
+  width: 3px;
+  background: var(--grad);
+  border-radius: 0 3px 3px 0;
+  box-shadow: 0 0 12px var(--accent), 0 0 24px var(--accent-bg);
+}
+
+/* 按钮增强 - 更通透的玻璃质感 */
+.btn {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(255,255,255,.18) 0%, rgba(255,255,255,.06) 100%);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border: 1px solid rgba(255,255,255,.22);
+  box-shadow: 0 4px 12px rgba(0,0,0,.15), inset 0 1px 0 rgba(255,255,255,.25), inset 0 -1px 0 rgba(0,0,0,.1);
+}
+.btn::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent);
+  transition: left .6s;
+  pointer-events: none;
+}
+.btn:hover::after { left: 100%; }
+.btn:hover {
+  background: linear-gradient(180deg, rgba(255,255,255,.25) 0%, rgba(255,255,255,.1) 100%);
+  border-color: rgba(255,255,255,.32);
+  box-shadow: 0 8px 24px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.3), inset 0 -1px 0 rgba(0,0,0,.12);
+}
+
+/* 输入框增强 - 更通透的玻璃质感 */
+.form-group input, .form-group select, .form-group textarea, .table-toolbar .search {
+  position: relative;
+  background: rgba(255,255,255,.06);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,.12);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+  transition: all .3s cubic-bezier(.25,.8,.25,1);
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus, .table-toolbar .search:focus {
+  background: rgba(255,255,255,.1);
+  border-color: var(--accent3);
+  box-shadow: 0 0 0 4px var(--accent-bg), inset 0 1px 0 rgba(255,255,255,.15), 0 4px 16px rgba(0,0,0,.12);
+}
+
+/* 多选标签增强 - 更通透的玻璃质感 */
+.multi-select {
+  background: rgba(255,255,255,.06);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255,255,255,.12);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.1);
+}
+.multi-select .opt {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.1);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+  transition: all .25s cubic-bezier(.25,.8,.25,1);
+}
+.multi-select .opt::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,.2) 0%, transparent 50%);
+  opacity: 0;
+  transition: opacity .25s;
+  pointer-events: none;
+}
+.multi-select .opt:hover::before { opacity: 1; }
+.multi-select .opt:hover {
+  background: rgba(255,255,255,.1);
+  border-color: rgba(255,255,255,.18);
+}
+.multi-select .opt.sel {
+  position: relative;
+  background: var(--grad);
+  color: var(--bg);
+  border-color: transparent;
+  box-shadow: 0 4px 16px var(--accent-bg), inset 0 1px 0 rgba(255,255,255,.35), inset 0 -1px 0 rgba(0,0,0,.15);
+  font-weight: 500;
+}
+.multi-select .opt.sel::after {
+  content: '✓';
+  position: absolute;
+  top: 50%; right: 8px;
+  transform: translateY(-50%);
+  font-size: 10px;
+  opacity: .9;
+  text-shadow: 0 1px 1px rgba(0,0,0,.2);
+}
+
+/* 表格行增强 - 更流畅的过渡 */
+tbody tr {
+  transition: all .3s cubic-bezier(.25,.8,.25,1);
+  background: rgba(255,255,255,.03);
+}
+tbody tr:nth-child(even) {
+  background: rgba(255,255,255,.04);
+}
+tbody tr:hover {
+  background: rgba(255,255,255,.09);
+  transform: translateX(3px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), inset 0 -1px 0 rgba(0,0,0,.05);
+}
+
+/* 统计卡片增强 - 更通透的玻璃质感 */
+.stat-card {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255,255,255,.06);
+  backdrop-filter: blur(40px) saturate(200%) brightness(1.15);
+  -webkit-backdrop-filter: blur(40px) saturate(200%) brightness(1.15);
+  border: 1px solid rgba(255,255,255,.14);
+  box-shadow: 0 10px 40px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.2), inset 0 -1px 0 rgba(0,0,0,.08);
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: -50%; right: -50%;
+  width: 100%; height: 100%;
+  background: radial-gradient(circle, var(--accent-bg) 0%, transparent 70%);
+  opacity: .4;
+  pointer-events: none;
+  animation: glowPulse 4s ease-in-out infinite;
+}
+@keyframes glowPulse {
+  0%, 100% { opacity: .3; transform: scale(1); }
+  50% { opacity: .5; transform: scale(1.1); }
+}
+
+/* 模态框增强 - 更通透的玻璃质感 */
+.modal {
+  position: relative;
+  overflow: hidden;
+  background: rgba(20,20,35,.5);
+  backdrop-filter: blur(60px) saturate(220%) brightness(1.15);
+  -webkit-backdrop-filter: blur(60px) saturate(220%) brightness(1.15);
+  border: 1px solid rgba(255,255,255,.18);
+  box-shadow: 0 30px 80px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.25), inset 0 -1px 0 rgba(0,0,0,.15), inset 1px 0 0 rgba(255,255,255,.1), inset -1px 0 0 rgba(0,0,0,.1);
+}
+.modal::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: .7;
+}
+.modal::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,.1) 0%, transparent 30%, transparent 70%, rgba(0,0,0,.08) 100%);
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* 卡片容器增强 */
+.chart-card, .list-card, .table-wrap {
+  background: rgba(255,255,255,.06);
+  backdrop-filter: blur(50px) saturate(210%) brightness(1.15);
+  -webkit-backdrop-filter: blur(50px) saturate(210%) brightness(1.15);
+  border: 1px solid rgba(255,255,255,.14);
+  box-shadow: 0 12px 48px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.2), inset 0 -1px 0 rgba(0,0,0,.08), inset 1px 0 0 rgba(255,255,255,.08), inset -1px 0 0 rgba(0,0,0,.06);
+}
+
+/* 顶栏增强 */
+.topbar {
+  background: rgba(255,255,255,.06);
+  backdrop-filter: blur(50px) saturate(210%) brightness(1.15);
+  -webkit-backdrop-filter: blur(50px) saturate(210%) brightness(1.15);
+  border-bottom: 1px solid rgba(255,255,255,.14);
+  box-shadow: inset 0 -1px 0 rgba(255,255,255,.08), 0 8px 32px rgba(0,0,0,.15);
+}
+
+/* 滚动条增强 - 更精致 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(255,255,255,.02);
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--accent3), var(--border));
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.1);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* 全局动画增强 */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 选中文字颜色 */
+::selection {
+  background: var(--accent-bg);
+  color: var(--accent2);
+}
+
+/* 标签增强 */
+.tag {
+  background: rgba(255,255,255,.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,.12);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.1);
+}
+
+/* ===== 进阶UI优化 ===== */
+/* 数字渐变效果 */
+.stat-value, .ov-num, .score-num {
+  background: linear-gradient(135deg, var(--accent2) 0%, var(--accent) 50%, var(--accent3) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 8px var(--accent-bg));
+}
+
+/* 卡片入场动画 */
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(20px) scale(.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.chart-card, .list-card, .stat-card, .table-wrap, .readiness-score, .readiness-tips {
+  animation: cardIn .6s cubic-bezier(.25,.8,.25,1) backwards;
+}
+.chart-card:nth-child(1), .stat-card:nth-child(1) { animation-delay: .05s; }
+.chart-card:nth-child(2), .stat-card:nth-child(2) { animation-delay: .1s; }
+.chart-card:nth-child(3), .stat-card:nth-child(3) { animation-delay: .15s; }
+.chart-card:nth-child(4), .stat-card:nth-child(4) { animation-delay: .2s; }
+.chart-card:nth-child(5), .stat-card:nth-child(5) { animation-delay: .25s; }
+.list-card:nth-child(1) { animation-delay: .15s; }
+.list-card:nth-child(2) { animation-delay: .2s; }
+
+/* 按钮按下效果 */
+.btn:active {
+  transform: translateY(1px) scale(.98);
+  box-shadow: 0 2px 8px rgba(0,0,0,.15), inset 0 1px 0 rgba(255,255,255,.2);
+}
+
+/* 总览标题增强 */
+.overview-title h2 {
+  background: linear-gradient(135deg, var(--accent2) 0%, var(--accent) 40%, var(--accent3) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 15px var(--accent-bg));
+  position: relative;
+}
+.overview-seal {
+  animation: sealFloat 4s ease-in-out infinite;
+}
+@keyframes sealFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* 进度条增强 */
+.dim-fill {
+  position: relative;
+  overflow: hidden;
+}
+.dim-fill::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.3), transparent);
+  animation: shimmer 2s infinite;
+}
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* 表格行入场 */
+@keyframes rowIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+tbody tr {
+  animation: rowIn .4s ease backwards;
+}
+tbody tr:nth-child(1) { animation-delay: .02s; }
+tbody tr:nth-child(2) { animation-delay: .04s; }
+tbody tr:nth-child(3) { animation-delay: .06s; }
+tbody tr:nth-child(4) { animation-delay: .08s; }
+tbody tr:nth-child(5) { animation-delay: .1s; }
+tbody tr:nth-child(6) { animation-delay: .12s; }
+tbody tr:nth-child(7) { animation-delay: .14s; }
+tbody tr:nth-child(8) { animation-delay: .16s; }
+tbody tr:nth-child(9) { animation-delay: .18s; }
+tbody tr:nth-child(10) { animation-delay: .2s; }
+
+/* 表头增强 */
+thead th {
+  position: relative;
+  background: linear-gradient(180deg, rgba(255,255,255,.08) 0%, rgba(255,255,255,.04) 100%);
+}
+thead th::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent3), transparent);
+  opacity: .5;
+}
+
+/* 模态框背景过渡 */
+.modal-overlay {
+  transition: opacity .3s, backdrop-filter .3s;
+}
+.modal-overlay:not(.show) {
+  opacity: 0;
+  pointer-events: none;
+}
+.modal {
+  transition: transform .3s cubic-bezier(.25,.8,.25,1), opacity .3s;
+}
+.modal-overlay:not(.show) .modal {
+  transform: translateY(20px) scale(.97);
+  opacity: 0;
+}
+
+/* 侧边栏项目入场 */
+@keyframes navIn {
+  from { opacity: 0; transform: translateX(-15px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.nav-item {
+  animation: navIn .4s ease backwards;
+}
+
+/* 内容区域淡入 */
+.content {
+  animation: contentIn .5s ease;
+}
+@keyframes contentIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 图表标题装饰 */
+.chart-title {
+  position: relative;
+  padding-left: 4px;
+}
+.chart-title::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: -4px;
+  width: 30px; height: 2px;
+  background: var(--grad);
+  border-radius: 1px;
+}
+
+/* 列表项悬停增强 */
+.list-item {
+  position: relative;
+  overflow: hidden;
+}
+.list-item::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 2px;
+  background: var(--grad);
+  transform: scaleY(0);
+  transition: transform .25s;
+}
+.list-item:hover::before {
+  transform: scaleY(1);
+}
+
+/* 分数圆环增强 */
+.score-ring {
+  animation: ringPulse 3s ease-in-out infinite;
+}
+@keyframes ringPulse {
+  0%, 100% { filter: drop-shadow(0 0 8px var(--accent-bg)); }
+  50% { filter: drop-shadow(0 0 16px var(--accent-bg)); }
+}
+
+/* 搜索框聚焦效果 */
+.table-toolbar .search:focus {
+  transform: scale(1.02);
+}
+
+/* 分页按钮增强 */
+.pagination button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,.15);
+}
+
+/* 空状态图标增强 */
+.empty-icon {
+  filter: drop-shadow(0 0 20px var(--accent-bg));
+}
+</style>
+</head>
+<body>
+<!-- 液态玻璃折射滤镜 + 古风纹理 -->
+<svg style="position:absolute;width:0;height:0">
+  <defs>
+    <filter id="glass-refract">
+      <feTurbulence type="fractalNoise" baseFrequency="0.01 0.02" numOctaves="2" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <pattern id="cloud-pattern" x="0" y="0" width="120" height="120" patternUnits="userSpaceOnUse">
+      <path d="M0 60 Q15 45 30 60 T60 60 T90 60 T120 60" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.3"/>
+      <path d="M0 90 Q15 75 30 90 T60 90 T90 90 T120 90" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.2"/>
+      <path d="M0 30 Q15 15 30 30 T60 30 T90 30 T120 30" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.2"/>
+      <circle cx="60" cy="60" r="2" fill="currentColor" opacity="0.15"/>
+      <circle cx="0" cy="0" r="1.5" fill="currentColor" opacity="0.1"/>
+      <circle cx="120" cy="120" r="1.5" fill="currentColor" opacity="0.1"/>
+    </pattern>
+  </defs>
+</svg>
+<div class="app">
+  <div class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">智</div>
+      <div class="logo-text"><h1>智能数据库</h1><p>SMART DATABASE</p></div>
+    </div>
+    <div id="nav"></div>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <h2 id="pageTitle">数据总览</h2>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="font-switcher">
+          <button class="font-btn" onclick="setFontSize('small')" title="小字">A-</button>
+          <button class="font-btn active" onclick="setFontSize('normal')" title="默认">A</button>
+          <button class="font-btn" onclick="setFontSize('large')" title="大字">A+</button>
+        </div>
+        <div class="theme-switcher">
+          <button class="theme-btn" data-theme="jade" title="墨玉青" style="background:linear-gradient(135deg,#2dd4bf,#0d9488)"></button>
+          <button class="theme-btn" data-theme="graphite" title="石墨灰" style="background:linear-gradient(135deg,#7a8a99,#4a5a68)"></button>
+          <button class="theme-btn" data-theme="deepsea" title="深海琉璃" style="background:linear-gradient(135deg,#38bdf8,#0ea5e9)"></button>
+        </div>
+        <div class="mode">云端模式 · 数据保存在<span>飞书多维表格</span></div>
+      </div>
+    </div>
+    <div class="content" id="content"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header"><h3 id="modalTitle">新增</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="saveRecord()">保存</button></div>
+  </div>
+</div>
+
+<script>
+const API = '/api';
+
+// 关联字段映射：表名 -> { 字段名: { table: 关联表key, label: 显示字段, multiple: 是否多选 } }
+const REL = {
+  relations: { '人物A':{table:'characters',label:'姓名'}, '人物B':{table:'characters',label:'姓名'} },
+  romances: { '人物A':{table:'characters',label:'姓名'}, '人物B':{table:'characters',label:'姓名'} },
+  statuschanges: { '关联角色':{table:'characters',label:'姓名'} },
+  events: { '关联角色':{table:'characters',label:'姓名',multiple:true}, '关联势力':{table:'factions',label:'势力名称',multiple:true} },
+  gamblings: { '发起势力':{table:'factions',label:'势力名称'}, '目标势力':{table:'factions',label:'势力名称'} },
+  foreshadows: { '关键人物':{table:'characters',label:'姓名',multiple:true}, '关联章节':{table:'chapters',label:'章节标题'} },
+  chapters: { '主要角色':{table:'characters',label:'姓名',multiple:true}, '涉及势力':{table:'factions',label:'势力名称',multiple:true} },
+  items: { '关联角色':{table:'characters',label:'姓名'}, '所属势力':{table:'factions',label:'势力名称'} },
+  timeline: { '关联角色':{table:'characters',label:'姓名',multiple:true}, '关联势力':{table:'factions',label:'势力名称',multiple:true}, '关联事件':{table:'events',label:'事件名称',multiple:true}, '关联章节':{table:'chapters',label:'章节标题'} },
+  snapshots: { '关联章节':{table:'chapters',label:'章节标题'} },
+  cliques: { '所属势力':{table:'factions',label:'势力名称'} },
+  characters: { '所属势力':{table:'factions',label:'势力名称',multiple:true} },
+  factions: { '镇派宝物':{table:'items',label:'名称',multiple:true} }
+};
+
+// 表结构
+const T = {
+  characters:{name:'角色档案',group:'核心数据表',icon:'👤',fields:[
+    {k:'姓名',t:'text',req:true},{k:'别名/道号',t:'text'},{k:'性别',t:'single',o:['男','女','中性','未知']},
+    {k:'年龄',t:'number'},{k:'身份定位',t:'single',o:['主角','女主','反派BOSS','重要配角','配角','路人','隐藏角色']},
+    {k:'当前境界',t:'single',o:['炼气期','筑基期','金丹期','元婴期','化神期','炼虚期','合体期','大乘期','渡劫期','仙人']},
+    {k:'战力评级',t:'single',o:['S级','A级','B级','C级','D级']},{k:'境界进度',t:'number'},
+    {k:'当前状态',t:'single',o:['存活','受伤','重伤','濒死','闭关','失踪','死亡','复活','叛逃','封印中','被囚','沉睡']},
+    {k:'性格特质',t:'multi',o:['腹黑','隐忍','杀伐果断','优柔寡断','重情重义','薄情寡义','聪慧绝伦','鲁莽冲动','孤傲不群','圆滑世故','痴情专一','冷漠无情','热血正义','病娇','傲娇']},
+    {k:'角色标签',t:'multi',o:['天命之子','重生者','穿越者','隐藏大佬','卧底','复仇者','白月光','朱砂痣','工具人','伏笔角色']},
+    {k:'外貌特征',t:'text',full:true},{k:'口头禅',t:'text'},{k:'武器',t:'text'},{k:'喜恶偏好',t:'text',full:true},
+    {k:'核心动机',t:'text',full:true},{k:'弱点软肋',t:'text'},{k:'当前目标',t:'text',full:true},{k:'心境状态',t:'text'},
+    {k:'人设核心',t:'text',full:true},{k:'行为底线',t:'text',full:true},{k:'对主角好感度',t:'number'},
+    {k:'背景身世',t:'text',full:true},{k:'小传与弧光',t:'text',full:true},{k:'当前位置',t:'text'},{k:'是否出场',t:'checkbox'}
+  ]},
+  factions:{name:'势力宗门',group:'核心数据表',icon:'🏯',fields:[
+    {k:'势力名称',t:'text',req:true},{k:'势力类型',t:'single',o:['修仙宗门','王朝皇朝','魔道势力','妖族部落','散修联盟','商会组织','隐世家族','佛门','儒门','幽冥势力']},
+    {k:'阵营立场',t:'single',o:['正道','魔道','中立','混乱','守序']},{k:'势力等级',t:'single',o:['一品超级','二品顶级','三品一流','四品二流','五品三流','不入流']},
+    {k:'当前实力评级',t:'single',o:['S级','A级','B级','C级','D级']},{k:'当前局势',t:'single',o:['鼎盛','上升','稳定','衰落','内乱','危亡','覆灭','崛起中']},
+    {k:'核心利益诉求',t:'text',full:true},{k:'战略方向',t:'single',o:['争霸扩张','韬光养晦','防守反击','复仇雪恨','避世隐修','内部整合','寻求联盟','垂死挣扎']},
+    {k:'隐藏底牌',t:'text',full:true},{k:'势力弱点',t:'text',full:true},{k:'核心资源',t:'text',full:true},{k:'情报网络',t:'text'},
+    {k:'历史恩怨',t:'text',full:true},{k:'与主角关系',t:'single',o:['尊崇','友好','中立','警惕','敌对','通缉追杀','暗中利用','主角掌控']},
+    {k:'明面实力',t:'text',full:true},{k:'内部矛盾',t:'text',full:true},{k:'当前对外态度',t:'text'},{k:'最近变动',t:'text',full:true},
+    {k:'弟子/成员数量',t:'number'},{k:'势力底蕴',t:'text',full:true},{k:'镇派绝学',t:'text'},{k:'门规戒律',t:'text',full:true},
+    {k:'外交关系',t:'text',full:true},{k:'收入来源',t:'text'},{k:'总部所在地',t:'text'},{k:'成立时间',t:'text'},
+    {k:'服饰特征',t:'text'},{k:'标志图腾',t:'text'},{k:'势力配色',t:'single',o:['赤红','幽蓝','翠绿','玄紫','金黄','粉白','墨黑','素白']},
+    {k:'势力声望',t:'number'},{k:'简介',t:'text',full:true}
+  ]},
+  chapters:{name:'剧情章纲',group:'核心数据表',icon:'📖',fields:[
+    {k:'章节标题',t:'text',req:true},{k:'卷/篇',t:'text'},{k:'章节类型',t:'single',o:['主线','支线','过渡','高潮','转折','结局','番外','楔子']},
+    {k:'一句话概要',t:'text',full:true},{k:'剧情摘要',t:'text',full:true},{k:'核心冲突',t:'text',full:true},
+    {k:'剧情阶段',t:'single',o:['铺垫','发展','高潮','转折','收尾']},{k:'卷篇阶段',t:'single',o:['起步期','发展期','转折期','收尾期']},
+    {k:'写作状态',t:'single',o:['未写','构思中','写作中','已完成','需修改']},{k:'完成进度',t:'number'},{k:'剧情推进度',t:'number'},
+    {k:'字数预估',t:'number'},{k:'实际字数',t:'number'},{k:'修订次数',t:'number'},{k:'审稿状态',t:'single',o:['未审','一审中','二审中','终审中','已通过']},
+    {k:'章节任务',t:'text',full:true},{k:'情绪节奏',t:'single',o:['铺垫','压抑','爆发','爽','虐','过渡','反转','温情']},
+    {k:'章尾钩子',t:'text',full:true},{k:'信息密度',t:'single',o:['低（日常/过渡）','中（正常推进）','高（关键信息）','爆炸（高潮/揭秘）']},
+    {k:'爽虐点标记',t:'text'},{k:'金句摘录',t:'text',full:true},{k:'伏笔埋设',t:'text'},{k:'伏笔回收',t:'checkbox'},
+    {k:'时间线节点',t:'text'},{k:'剧情地点',t:'text'},{k:'势力格局变化',t:'text',full:true},{k:'优先级',t:'single',o:['高','中','低']},
+    {k:'上传平台',t:'single',o:['起点','番茄','晋江','纵横','未上传']}
+  ]},
+  romances:{name:'感情线追踪',group:'核心数据表',icon:'💕',fields:[
+    {k:'感情线名称',t:'text',req:true},{k:'感情类型',t:'single',o:['爱情','友情','师徒','亲情','敌对','暧昧','知己','孽缘','单相思','政治联姻']},
+    {k:'当前阶段',t:'single',o:['初识','印象深刻','暧昧期','确认关系','热恋','矛盾分歧','分手','生死相依','悲剧结局','相忘江湖']},
+    {k:'感情深度',t:'number'},{k:'感情线标签',t:'multi',o:['甜','虐','燃','搞笑','治愈','致郁','反转','暗恋','修罗场']},
+    {k:'状态',t:'single',o:['进行中','已完结','已搁置','已黑化']},{k:'初遇场景',t:'text',full:true},{k:'定情信物',t:'text'},
+    {k:'名场面记录',t:'text',full:true},{k:'阻碍因素',t:'text',full:true},{k:'发展脉络',t:'text',full:true},
+    {k:'结局预设',t:'single',o:['HE','BE','开放式','未定','悲剧','喜剧']},{k:'读者呼声',t:'single',o:['极高','高','中','低','无']}
+  ]},
+  events:{name:'事件日志',group:'核心数据表',icon:'⚔️',fields:[
+    {k:'事件名称',t:'text',req:true},{k:'事件类型',t:'single',o:['战斗','政变','突破','陨落','结盟','背叛','秘境开启','宝物出世','感情转折','身世揭秘','势力更迭','阴谋败露','天道异变']},
+    {k:'事件等级',t:'single',o:['S级','A级','B级','C级','D级']},{k:'事件状态',t:'single',o:['未发生','酝酿中','进行中','已结束','余波中','已平息']},
+    {k:'秘密等级',t:'single',o:['公开','小范围','隐秘','绝密','无人知晓']},{k:'伏笔性质',t:'single',o:['无','埋设','回收','既埋又收']},
+    {k:'发生时间(故事内)',t:'text'},{k:'故事内结束时间',t:'text'},{k:'事件地点',t:'text'},{k:'持续章节数',t:'number'},
+    {k:'事件经过',t:'text',full:true},{k:'直接后果',t:'text',full:true},{k:'深远影响',t:'text',full:true},{k:'当前进展',t:'text',full:true},
+    {k:'格局影响',t:'text',full:true},{k:'伤亡情况',t:'text'},{k:'资源投入',t:'text'},{k:'第三方态度',t:'text'},
+    {k:'情报来源',t:'text'},{k:'证据线索',t:'text'},{k:'是否主线关键',t:'checkbox'}
+  ]},
+  items:{name:'功法秘宝',group:'核心数据表',icon:'⚡',fields:[
+    {k:'名称',t:'text',req:true},{k:'类型',t:'single',o:['功法','武技','法宝','灵药','材料','符箓','阵法','传承','坐骑','灵脉','丹药']},
+    {k:'品阶',t:'single',o:['凡品','灵品','宝品','仙品','神品','混沌','先天']},{k:'稀有度',t:'single',o:['普通','稀有','史诗','传说','神话','禁忌']},
+    {k:'威力评级',t:'single',o:['S级','A级','B级','C级','D级']},{k:'物品状态',t:'single',o:['完好','破损','封印中','已损毁']},
+    {k:'当前归属',t:'single',o:['主角持有','配角持有','反派持有','遗失','未知','被封印']},{k:'功效描述',t:'text',full:true},
+    {k:'副作用',t:'text'},{k:'修炼条件',t:'text'},{k:'配套招式',t:'text'},{k:'使用次数限制',t:'number'},
+    {k:'出处/来历',t:'text',full:true},{k:'获取方式',t:'single',o:['传承','抢夺','购买','奇遇','炼制','天生']},{k:'外观描述',t:'text',full:true},{k:'易主记录',t:'text',full:true}
+  ]},
+  relations:{name:'人物关系网',group:'核心数据表',icon:'🕸️',fields:[
+    {k:'关系名称',t:'text',req:true},{k:'关系类型',t:'single',o:['师徒','父子','母子','兄弟','姐妹','朋友','敌人','恋人','夫妻','同门','主仆','盟友','情敌','杀亲仇人','义父子','忘年交']},
+    {k:'当前关系',t:'text'},{k:'初始关系',t:'text'},{k:'关系转折点',t:'text',full:true},{k:'关系亲密度',t:'number'},
+    {k:'隐藏关系',t:'checkbox'},{k:'关键对话',t:'text',full:true},{k:'关系开始时间',t:'text'},{k:'关系结束时间',t:'text'},{k:'备注',t:'text',full:true}
+  ]},
+  worldsettings:{name:'世界观设定',group:'核心数据表',icon:'🌍',fields:[
+    {k:'设定名称',t:'text',req:true},{k:'设定类别',t:'single',o:['境界体系','地理志','历史年表','修炼常识','势力格局','天道规则','灵药图鉴','妖兽谱','丹药谱','阵法图鉴']},
+    {k:'设定状态',t:'single',o:['草稿','已确立','已修改','待完善','已废弃']},{k:'等级/品阶',t:'text'},{k:'详细描述',t:'text',full:true},
+    {k:'设定版本',t:'number'},{k:'备注',t:'text',full:true}
+  ]},
+  gamblings:{name:'势力博弈',group:'权谋博弈',icon:'♟️',fields:[
+    {k:'博弈事件名称',t:'text',req:true},{k:'博弈类型',t:'single',o:['战争','外交','暗杀','阴谋','资源争夺','秘境争夺','政治联姻','舆论操控','经济封锁','宗门大比','皇位争夺','道统之争']},
+    {k:'博弈阶段',t:'single',o:['酝酿','布局','交锋','高潮','收尾','已定']},{k:'博弈结果',t:'single',o:['已分胜负','僵持中','未开始','两败俱伤','第三方得利']},
+    {k:'博弈复杂度',t:'single',o:['简单','中等','复杂','极复杂']},{k:'优先级',t:'single',o:['S级','A级','B级','C级']},{k:'博弈进度',t:'number'},
+    {k:'表面理由',t:'text',full:true},{k:'真实目的',t:'text',full:true},{k:'争夺核心',t:'text'},{k:'先手布局',t:'text',full:true},
+    {k:'后手应对',t:'text',full:true},{k:'关键转折',t:'text',full:true},{k:'信息差',t:'text'},{k:'博弈筹码',t:'text',full:true},
+    {k:'胜负预判',t:'text'},{k:'实际结果',t:'text',full:true},{k:'格局影响',t:'text',full:true},{k:'连锁反应',t:'text',full:true},
+    {k:'伤亡情况',t:'text'},{k:'资源投入',t:'text'},{k:'第三方态度',t:'text'},{k:'情报来源',t:'text'},{k:'读者知情度',t:'single',o:['全知','部分未知','完全未知','误导中']}
+  ]},
+  cliques:{name:'势力派系',group:'权谋博弈',icon:'🎭',fields:[
+    {k:'派系名称',t:'text',req:true},{k:'派系类型',t:'single',o:['长老会','少壮派','嫡传正统','旁支庶系','主战派','主和派','外戚势力','寒门子弟','世家勋贵','暗部密探']},
+    {k:'派系立场',t:'single',o:['激进','保守','中立','骑墙观望','谋逆篡位']},{k:'派系诉求',t:'text',full:true},{k:'掌控程度',t:'number'},
+    {k:'当前状态',t:'single',o:['得势掌权','失势边缘化','蛰伏待机','内斗激烈','被清洗','胜出独大']},{k:'派系资源',t:'text',full:true},
+    {k:'敌对派系',t:'text'},{k:'暗中谋划',t:'text',full:true},{k:'备注',t:'text',full:true}
+  ]},
+  volumes:{name:'分卷规划',group:'写作管理',icon:'📚',fields:[
+    {k:'卷名',t:'text',req:true},{k:'卷序号',t:'number'},{k:'故事阶段',t:'single',o:['起步期','发展期','转折期','收尾期']},
+    {k:'核心冲突',t:'text',full:true},{k:'主角阶段目标',t:'text',full:true},{k:'卷末高潮',t:'text',full:true},{k:'关键爽点节点',t:'text',full:true},
+    {k:'本卷伏笔计划',t:'text',full:true},{k:'字数目标',t:'number'},{k:'卷状态',t:'single',o:['规划中','写作中','已完成']},{k:'备注',t:'text',full:true}
+  ]},
+  statuschanges:{name:'角色状态变更',group:'动态变化',icon:'🔄',fields:[
+    {k:'变更标题',t:'text',req:true},{k:'变更类型',t:'single',o:['境界突破','境界跌落','立场转变','身份变更','重伤','死亡','复活','失忆','觉醒','获得传承','背叛','归降','入魔','剃度']},
+    {k:'变更前状态',t:'text'},{k:'变更后状态',t:'text'},{k:'变更原因',t:'text',full:true},{k:'变更描述',t:'text',full:true},
+    {k:'后续影响',t:'text',full:true},{k:'旁观者反应',t:'text'},{k:'变更影响范围',t:'single',o:['个人','小范围','势力级','天下级']},
+    {k:'变更时间(故事内)',t:'text'},{k:'变更持续时间',t:'text'},{k:'是否可逆',t:'checkbox'},{k:'恢复方式',t:'text',full:true}
+  ]},
+  timeline:{name:'动态时间线',group:'动态变化',icon:'📅',fields:[
+    {k:'时间节点',t:'text',req:true},{k:'时间线阶段',t:'single',o:['远古','上古','近代','当前','未来']},{k:'时间线类型',t:'single',o:['角色变更','剧情推进','势力变动','事件发生','感情进展','物品易主','伏笔埋设','伏笔回收','其他']},
+    {k:'变化重要度',t:'single',o:['S级','A级','B级','C级']},{k:'变化前状态',t:'text',full:true},{k:'变化后状态',t:'text',full:true},
+    {k:'变化描述',t:'text',full:true},{k:'故事内时间',t:'text'},{k:'是否已发生',t:'checkbox'}
+  ]},
+  dashboard:{name:'写作日志',group:'写作管理',icon:'📝',fields:[
+    {k:'日期',t:'date',req:true},{k:'写作时长(分钟)',t:'number'},{k:'完成字数',t:'number'},{k:'完成章节数',t:'number'},
+    {k:'写作状态',t:'single',o:['顺利','卡文','摸鱼','爆发','停更','修改中']},
+    {k:'今日目标',t:'text',full:true},{k:'完成情况',t:'text',full:true},{k:'卡点与解决',t:'text',full:true},
+    {k:'灵感记录',t:'text',full:true},{k:'明日计划',t:'text',full:true},{k:'心情指数',t:'number'},{k:'备注',t:'text',full:true}
+  ]},
+  tasks:{name:'写作任务',group:'写作管理',icon:'✅',fields:[
+    {k:'任务名称',t:'text',req:true},{k:'任务类型',t:'single',o:['写章节','改稿','查资料','设定完善','大纲调整','宣传运营','其他']},
+    {k:'任务状态',t:'single',o:['待开始','进行中','已完成','已搁置','已取消']},{k:'优先级',t:'single',o:['紧急重要','重要不紧急','紧急不重要','不紧急不重要']},
+    {k:'任务描述',t:'text',full:true},{k:'完成进度',t:'number'},{k:'截止日期',t:'date'},{k:'备注',t:'text',full:true}
+  ]},
+  inspirations:{name:'灵感收集',group:'写作管理',icon:'💡',fields:[
+    {k:'灵感内容',t:'text',req:true,full:true},{k:'灵感类型',t:'single',o:['剧情','角色','设定','对话','场景','爽点','虐点','反转']},
+    {k:'来源',t:'text'},{k:'是否已用',t:'checkbox'}
+  ]},
+  foreshadows:{name:'伏笔追踪',group:'写作管理',icon:'🔮',fields:[
+    {k:'伏笔名称',t:'text',req:true},{k:'伏笔类型',t:'single',o:['人物伏笔','剧情伏笔','世界观伏笔','物品伏笔','感情伏笔']},
+    {k:'状态',t:'single',o:['已埋设','埋设中','已回收','已废弃','既埋又收']},{k:'重要程度',t:'single',o:['S级','A级','B级','C级']},
+    {k:'伏笔内容',t:'text',full:true},{k:'表面线索',t:'text'},{k:'真相揭示',t:'text',full:true},{k:'埋设方式',t:'text'},
+    {k:'回收方式',t:'text'},{k:'读者察觉度',t:'single',o:['无人察觉','少数人猜到','广泛讨论','已被剧透']},{k:'备注',t:'text',full:true}
+  ]},
+  snapshots:{name:'章节快照',group:'写作管理',icon:'📸',fields:[
+    {k:'快照名称',t:'text',req:true},{k:'快照时间点',t:'text'},{k:'角色格局快照',t:'text',full:true},{k:'势力格局快照',t:'text',full:true},
+    {k:'主线进度快照',t:'text',full:true},{k:'感情线状态快照',t:'text',full:true},{k:'伏笔状态快照',t:'text',full:true},
+    {k:'物品归属快照',t:'text',full:true},{k:'本章关键变化',t:'text',full:true},{k:'备注',t:'text',full:true}
+  ]},
+  feedbacks:{name:'读者反馈',group:'写作管理',icon:'💬',fields:[
+    {k:'反馈摘要',t:'text',req:true},{k:'反馈类型',t:'single',o:['好评','差评','建议','疑问','催更','剧情讨论','人物讨论']},
+    {k:'反馈内容',t:'text',full:true},{k:'回复内容',t:'text',full:true},{k:'处理状态',t:'single',o:['未读','已读','已采纳','已回复','已忽略']},
+    {k:'反馈来源',t:'single',o:['起点','番茄','晋江','纵横','微博','QQ群','贴吧','其他']},{k:'反馈时间',t:'date'}
+  ]}
+};
+
+const NAV_GROUPS = [
+  {title:'总览',items:[{key:'overview',name:'数据总览',icon:'📊'}]},
+  {title:'核心数据表',items:['characters','factions','chapters','romances','events','items','relations','worldsettings']},
+  {title:'权谋博弈',items:['gamblings','cliques']},
+  {title:'动态变化',items:['statuschanges','timeline']},
+  {title:'写作管理',items:['volumes','dashboard','tasks','inspirations','foreshadows','snapshots','feedbacks']}
+];
+
+let curPage = 'overview', curRecords = [], curPageNum = 1, editId = null, searchKw = '', allData = {};
+let fmTable = 'characters', fmField = null;
+let sortField = null, sortOrder = 'asc'; // 排序状态
+
+// 从关联字段值中提取ID数组（处理各种格式）
+function extractRelIds(v) {
+  if (!v) return [];
+  if (Array.isArray(v)) {
+    return v.map(item => {
+      if (typeof item === 'string') return item;
+      if (typeof item === 'object' && item) return item.record_id || item.id || item.text || '';
+      return '';
+    }).filter(Boolean);
+  }
+  if (typeof v === 'string') return v.split(',').map(s=>s.trim()).filter(Boolean);
+  return [];
+}
+
+async function api(method, path, body) {
+  const opts = {method, headers:{'Content-Type':'application/json'}};
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(API + path, opts);
+  return r.json();
+}
+
+async function loadAll() {
+  await Promise.all(Object.keys(T).map(async key => {
+    try {
+      const d = await api('GET', `/${key}/records?page_size=500`);
+      allData[key] = d.records || [];
+    } catch(e) { allData[key] = []; }
+  }));
+}
+
+function renderNav() {
+  let h = '';
+  for (const g of NAV_GROUPS) {
+    h += `<div class="nav-section"><div class="nav-title">${g.title}</div>`;
+    for (const item of g.items) {
+      if (typeof item === 'string') {
+        const t = T[item];
+        const cnt = (allData[item]||[]).length;
+        h += `<div class="nav-item ${curPage===item?'active':''}" onclick="go('${item}')"><span class="icon">${t.icon}</span>${t.name}<span class="count">${cnt}</span></div>`;
+      } else {
+        h += `<div class="nav-item ${curPage===item.key?'active':''}" onclick="go('${item.key}')"><span class="icon">${item.icon}</span>${item.name}</div>`;
+      }
+    }
+    h += '</div>';
+  }
+  h += `<div class="data-mgmt">
+    <div class="nav-item ${curPage==='fields'?'active':''}" onclick="go('fields')"><span class="icon">⚙️</span>字段选项管理</div>
+  </div>`;
+  document.getElementById('nav').innerHTML = h;
+}
+
+function go(page) {
+  curPage = page;
+  curPageNum = 1;
+  searchKw = '';
+  renderNav();
+  render();
+}
+
+async function render() {
+  const c = document.getElementById('content');
+  // 重触发淡入动画
+  c.style.animation = 'none';
+  c.offsetHeight;
+  c.style.animation = '';
+  if (curPage === 'overview') {
+    document.getElementById('pageTitle').textContent = '数据总览';
+    c.innerHTML = '<div class="loading"><div class="loading-spinner"></div><p>数据加载中...</p></div>';
+    await loadAll();
+    renderNav();
+    renderOverview();
+  } else if (curPage === 'fields') {
+    document.getElementById('pageTitle').textContent = '字段选项管理';
+    renderFieldsMgr();
+  } else {
+    const t = T[curPage];
+    document.getElementById('pageTitle').textContent = t.name;
+    curRecords = allData[curPage] || [];
+    if (searchKw) {
+      const kw = searchKw.toLowerCase();
+      curRecords = curRecords.filter(r => Object.values(r.fields).some(v => v!=null && String(v).toLowerCase().includes(kw)));
+    }
+    renderTable();
+  }
+}
+
+function renderDim(name, score, desc) {
+  return `<div class="dim-item">
+    <div class="dim-head"><span class="dim-name">${name}</span><span class="dim-score">${score}%</span></div>
+    <div class="dim-bar"><div class="dim-fill" style="width:${score}%"></div></div>
+    <div class="dim-desc">${desc}</div>
+  </div>`;
+}
+
+function renderTips(charCnt, factCnt, chapCnt, romCnt, eventCnt, foreCnt, gamCnt, relCnt, statusCnt, timelineCnt, taskCnt) {
+  const tips = [];
+  if (charCnt === 0) tips.push({icon:'⚠', text:'还没有角色档案，建议先创建主角', type:'warn'});
+  if (factCnt === 0) tips.push({icon:'⚠', text:'势力宗门为空，权谋博弈需要势力支撑', type:'warn'});
+  if (chapCnt === 0) tips.push({icon:'💡', text:'剧情章纲未开始，建议先搭建主线框架', type:'info'});
+  if (charCnt > 0 && factCnt > 0 && gamCnt === 0) tips.push({icon:'💡', text:'角色和势力已有，建议添加势力博弈关系', type:'info'});
+  if (foreCnt > 0) tips.push({icon:'🔮', text:`已有${foreCnt}个伏笔，注意回收节奏`, type:'ok'});
+  if (romCnt === 0 && charCnt >= 2) tips.push({icon:'💕', text:'角色≥2但无感情线，可考虑添加情感纠葛', type:'info'});
+  if (eventCnt === 0 && chapCnt > 0) tips.push({icon:'⚡', text:'有章节但无事件记录，关键事件建议单独记录', type:'info'});
+  if (statusCnt === 0 && charCnt > 0) tips.push({icon:'📊', text:'角色状态变更为空，可记录角色成长轨迹', type:'info'});
+  if (taskCnt === 0) tips.push({icon:'✅', text:'写作任务为空，可设定每日/每周写作目标', type:'info'});
+  if (tips.length === 0) tips.push({icon:'🎉', text:'数据完善度良好，继续保持！', type:'ok'});
+  return tips.slice(0, 5).map(t => `<div class="tip-item tip-${t.type}"><span class="tip-icon">${t.icon}</span><span class="tip-text">${t.text}</span></div>`).join('');
+}
+
+function renderOverview() {
+  const c = document.getElementById('content');
+  const charCnt = (allData.characters||[]).length;
+  const factCnt = (allData.factions||[]).length;
+  const chapCnt = (allData.chapters||[]).length;
+  const foreCnt = (allData.foreshadows||[]).length;
+  const romCnt = (allData.romances||[]).length;
+  const eventCnt = (allData.events||[]).length;
+  const taskCnt = (allData.tasks||[]).length;
+  const inspCnt = (allData.inspirations||[]).length;
+  const worldCnt = (allData.worldsettings||[]).length;
+  const itemCnt = (allData.items||[]).length;
+  const gamCnt = (allData.gamblings||[]).length;
+  const cliqueCnt = (allData.cliques||[]).length;
+  const relCnt = (allData.relations||[]).length;
+  const statusCnt = (allData.statuschanges||[]).length;
+  const timelineCnt = (allData.timeline||[]).length;
+  const filledTables = Object.values(allData).filter(a => a && a.length > 0).length;
+  const totalRecords = Object.values(allData).reduce((s,a) => s + (a?a.length:0), 0);
+  const health = Math.round(filledTables / 19 * 100);
+
+  c.innerHTML = `
+    <div class="overview-header">
+      <div class="overview-seal">智</div>
+      <div class="overview-title">
+        <h2>数据总览</h2>
+        <p>全局数据概览 · 一屏掌握全局</p>
+      </div>
+      <div class="overview-stats">
+        <div class="ov-stat"><span class="ov-num">${totalRecords}</span><span class="ov-label">总记录数</span></div>
+        <div class="ov-stat"><span class="ov-num">${filledTables}/19</span><span class="ov-label">已启用表</span></div>
+        <div class="ov-stat"><span class="ov-num">${health}%</span><span class="ov-label">完整度</span></div>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon">👤</div><div class="stat-value">${charCnt}</div><div class="stat-label">角色档案</div><div class="stat-sub">位登场角色</div></div>
+      <div class="stat-card"><div class="stat-icon">🏯</div><div class="stat-value">${factCnt}</div><div class="stat-label">势力宗门</div><div class="stat-sub">方势力博弈</div></div>
+      <div class="stat-card"><div class="stat-icon">📖</div><div class="stat-value">${chapCnt}</div><div class="stat-label">剧情章纲</div><div class="stat-sub">个剧情节点</div></div>
+      <div class="stat-card"><div class="stat-icon">🔮</div><div class="stat-value">${foreCnt}</div><div class="stat-label">伏笔记录</div><div class="stat-sub">条暗线埋伏</div></div>
+      <div class="stat-card"><div class="stat-icon">💕</div><div class="stat-value">${romCnt}</div><div class="stat-label">感情线</div><div class="stat-sub">段恩怨情仇</div></div>
+      <div class="stat-card"><div class="stat-icon">⚡</div><div class="stat-value">${eventCnt}</div><div class="stat-label">事件记录</div><div class="stat-sub">个关键事件</div></div>
+    </div>
+
+    <div class="progress-section">
+      <div class="section-title"><span>写作准备度评估</span><span class="section-sub">智能分析 · 下一步建议</span></div>
+      <div class="readiness-grid">
+        <div class="readiness-score">
+          <div class="score-ring">
+            <svg viewBox="0 0 120 120" class="ring-svg">
+              <circle cx="60" cy="60" r="52" fill="none" stroke="var(--border)" stroke-width="8"/>
+              <circle cx="60" cy="60" r="52" fill="none" stroke="url(#gradRing)" stroke-width="8" stroke-linecap="round" stroke-dasharray="${health*3.27} 327" transform="rotate(-90 60 60)"/>
+              <defs><linearGradient id="gradRing" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="var(--accent2)"/><stop offset="100%" stop-color="var(--accent3)"/></linearGradient></defs>
+            </svg>
+            <div class="score-num">${health}<span>%</span></div>
+          </div>
+          <div class="score-label">整体完善度</div>
+          <div class="score-desc">${filledTables}/19张表已启用 · ${totalRecords}条数据</div>
+        </div>
+        <div class="readiness-dims">
+          ${renderDim('核心设定', (charCnt>0?25:0)+(factCnt>0?25:0)+(worldCnt>0?25:0)+(itemCnt>0?25:0), `${charCnt}角色 · ${factCnt}势力 · ${worldCnt}世界观 · ${itemCnt}功法`)}
+          ${renderDim('剧情推进', (chapCnt>0?40:0)+(eventCnt>0?30:0)+(foreCnt>0?30:0), `${chapCnt}章节 · ${eventCnt}事件 · ${foreCnt}伏笔`)}
+          ${renderDim('权谋博弈', (gamCnt>0?50:0)+(cliqueCnt>0?50:0), `${gamCnt}博弈 · ${cliqueCnt}派系`)}
+          ${renderDim('感情动态', (romCnt>0?40:0)+(relCnt>0?30:0)+(statusCnt>0?30:0), `${romCnt}感情线 · ${relCnt}关系 · ${statusCnt}状态变更`)}
+        </div>
+        <div class="readiness-tips">
+          <div class="tips-title">💡 智能建议</div>
+          ${renderTips(charCnt, factCnt, chapCnt, romCnt, eventCnt, foreCnt, gamCnt, relCnt, statusCnt, timelineCnt, taskCnt)}
+        </div>
+      </div>
+    </div>
+
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-header"><div class="chart-title">势力关系图谱</div>
+          <div class="legend-row"><span class="legend-item"><span class="legend-dot" style="background:#4a8"></span>盟友</span><span class="legend-item"><span class="legend-dot" style="background:#c44"></span>敌对</span></div>
+        </div>
+        <div class="chart-container" id="factionChart"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header"><div class="chart-title">核心人物关系网</div>
+          <div class="legend-row"><span class="legend-item"><span class="legend-dot" style="background:#c44"></span>主角</span><span class="legend-item"><span class="legend-dot" style="background:#e8e"></span>女主</span><span class="legend-item"><span class="legend-dot" style="background:#c64"></span>反派</span><span class="legend-item"><span class="legend-dot" style="background:#48c"></span>重要</span></div>
+        </div>
+        <div class="chart-container" id="charChart"></div>
+      </div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-header"><div class="chart-title">角色势力归属</div>
+          <div class="legend-row"><span class="legend-item"><span class="legend-dot" style="background:#48c"></span>角色</span><span class="legend-item"><span class="legend-dot" style="background:#cc8"></span>势力</span></div>
+        </div>
+        <div class="chart-container" id="charFactionChart"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header"><div class="chart-title">感情线网络</div>
+          <div class="legend-row"><span class="legend-item"><span class="legend-dot" style="background:#e8e"></span>爱情</span><span class="legend-item"><span class="legend-dot" style="background:#48c"></span>友情</span><span class="legend-item"><span class="legend-dot" style="background:#c44"></span>敌对</span></div>
+        </div>
+        <div class="chart-container" id="romanceChart"></div>
+      </div>
+    </div>
+    <div class="bottom-row">
+      <div class="list-card">
+        <div class="chart-header"><div class="chart-title">势力局势一览</div><span class="chart-more" onclick="curPage='factions';render()">查看全部 →</span></div>
+        ${renderFactionList()}
+      </div>
+      <div class="list-card">
+        <div class="chart-header"><div class="chart-title">章节写作进度</div><span class="chart-more" onclick="curPage='chapters';render()">查看全部 →</span></div>
+        ${renderChapterList()}
+      </div>
+    </div>`;
+
+  // 渲染图表
+  setTimeout(() => {
+    renderFactionChart();
+    renderCharChart();
+    renderCharFactionChart();
+    renderRomanceChart();
+  }, 100);
+}
+
+function renderFactionList() {
+  const factions = allData.factions || [];
+  if (factions.length === 0) return '<div class="empty" style="padding:20px">暂无势力数据</div>';
+  const colors = {'鼎盛':'#4a8','上升':'#6c8','稳定':'#cc8','衰落':'#c84','内乱':'#c64','危亡':'#c44','覆灭':'#666','崛起中':'#8c6'};
+  return factions.slice(0, 8).map(f => {
+    const s = f.fields['当前局势'] || '稳定';
+    return `<div class="list-item"><span class="list-dot" style="background:${colors[s]||'#888'}"></span><span class="list-text">${f.fields['势力名称']||'未命名'}</span><span class="list-meta">${s}</span></div>`;
+  }).join('');
+}
+
+function renderChapterList() {
+  const chapters = allData.chapters || [];
+  if (chapters.length === 0) return '<div class="empty" style="padding:20px">暂无章节数据</div>';
+  const colors = {'未写':'#666','构思中':'#88c','写作中':'#cc8','已完成':'#4a8','需修改':'#c84'};
+  return chapters.slice(0, 8).map(c => {
+    const s = c.fields['写作状态'] || '未写';
+    return `<div class="list-item"><span class="list-dot" style="background:${colors[s]||'#888'}"></span><span class="list-text">${c.fields['章节标题']||'未命名'}</span><span class="list-meta">${s}</span></div>`;
+  }).join('');
+}
+
+function renderFactionChart() {
+  const el = document.getElementById('factionChart');
+  if (!el || !window.echarts) return;
+  const chart = echarts.init(el);
+  const factions = allData.factions || [];
+  const gamblings = allData.gamblings || [];
+  const nodes = factions.slice(0, 8).map((f, i) => ({
+    name: f.fields['势力名称'] || ('势力'+(i+1)),
+    symbolSize: 30 + (f.fields['弟子/成员数量'] ? Math.min(40, f.fields['弟子/成员数量']/10) : 30),
+    itemStyle: {color: ['#4a8','#c44','#48c','#cc4','#8c4','#c84','#84c','#4cc'][i%8]}
+  }));
+  const links = [];
+  // 从势力博弈表获取真实关系
+  gamblings.slice(0, 6).forEach(g => {
+    const a = g.fields['发起势力'];
+    const b = g.fields['目标势力'];
+    const type = g.fields['博弈类型'] || '博弈';
+    if (a && b && nodes.find(n => n.name === a) && nodes.find(n => n.name === b)) {
+      links.push({source:a, target:b, lineStyle:{color:'#c84', width:1.5, type:'dashed'}, label:{show:true, formatter:type, fontSize:9, color:'#c84'}});
+    }
+  });
+  // 如果没有博弈数据，用默认连线
+  if (links.length === 0) {
+    for (let i = 1; i < nodes.length; i++) {
+      const isEnemy = i%2;
+      links.push({source: nodes[0].name, target: nodes[i].name, lineStyle: {color: isEnemy?'#c44':'#4a8', width: 1.5, type: isEnemy?'solid':'dashed'}, label:{show:true, formatter: isEnemy?'敌对':'盟友', fontSize:9, color: isEnemy?'#c44':'#4a8'}});
+    }
+  }
+  chart.setOption({
+    tooltip: {},
+    series: [{type:'graph', layout:'force', roam:true, draggable:true,
+      force:{repulsion:200, edgeLength:80},
+      label:{show:true, position:'inside', color:'#fff', fontSize:10, fontWeight:'bold'},
+      data: nodes, links: links,
+      lineStyle: {opacity: 0.6, curveness: 0.1}
+    }]
+  });
+}
+
+function renderCharChart() {
+  const el = document.getElementById('charChart');
+  if (!el || !window.echarts) return;
+  const chart = echarts.init(el);
+  const chars = allData.characters || [];
+  const relations = allData.relations || [];
+  // 辅助函数：从关联字段值中提取名称
+  const extractNames = (val) => {
+    if (!val) return [];
+    if (Array.isArray(val)) {
+      return val.map(item => {
+        if (typeof item === 'string') return item;
+        if (typeof item === 'object' && item) return item.record_id || item.id || item.text || '';
+        return '';
+      }).filter(Boolean);
+    }
+    if (typeof val === 'string') return val.split(',').map(s=>s.trim()).filter(Boolean);
+    return [];
+  };
+  const mainChars = chars.filter(c => ['主角','女主','反派BOSS','重要配角'].includes(c.fields['身份定位'])).slice(0, 8);
+  const nodeNames = new Set(mainChars.map(c => c.fields['姓名']).filter(Boolean));
+  const nodes = mainChars.map((c, i) => {
+    const role = c.fields['身份定位'];
+    const color = role==='主角'?'#c44':role==='女主'?'#e8e':role==='反派BOSS'?'#c44':'#48c';
+    return {name: c.fields['姓名']||('角色'+(i+1)), symbolSize: 25+(role==='主角'?15:role==='女主'?10:5), itemStyle:{color}};
+  });
+  const links = [];
+  // 从人物关系网表获取真实关系
+  relations.slice(0, 10).forEach(r => {
+    const aList = extractNames(r.fields['人物A']);
+    const bList = extractNames(r.fields['人物B']);
+    const a = aList[0] || '';
+    const b = bList[0] || '';
+    const type = r.fields['关系类型'] || '关系';
+    if (a && b) {
+      if (!nodeNames.has(a)) { nodeNames.add(a); nodes.push({name:a, symbolSize:18, itemStyle:{color:'#666'}}); }
+      if (!nodeNames.has(b)) { nodeNames.add(b); nodes.push({name:b, symbolSize:18, itemStyle:{color:'#666'}}); }
+      const color = type==='恋人'||type==='夫妻'?'#e8e':type==='敌人'||type==='杀亲仇人'?'#c44':'#888';
+      links.push({source:a, target:b, lineStyle:{color, width:1.5, type: type==='敌人'?'dashed':'solid'}, label:{show:true, formatter:type, fontSize:9, color}});
+    }
+  });
+  // 如果没有关系数据，用默认连线
+  if (links.length === 0 && nodes.length > 1) {
+    for (let i = 1; i < nodes.length; i++) {
+      links.push({source: nodes[0]?.name||'主角', target: nodes[i].name, lineStyle:{color:'#888', width:1, type:'dashed'}, label:{show:true, formatter:'关联', fontSize:9, color:'#888'}});
+    }
+  }
+  chart.setOption({
+    tooltip:{},
+    series:[{type:'graph', layout:'force', roam:true, draggable:true,
+      force:{repulsion:150, edgeLength:60},
+      label:{show:true, position:'inside', color:'#fff', fontSize:9, fontWeight:'bold'},
+      data: nodes, links: links,
+      lineStyle:{opacity:0.4, curveness:0.1}
+    }]
+  });
+}
+
+function renderCharFactionChart() {
+  const el = document.getElementById('charFactionChart');
+  if (!el || !window.echarts) return;
+  const chart = echarts.init(el);
+  const chars = allData.characters || [];
+  const nodes = [];
+  const links = [];
+  const factionSet = new Set();
+  chars.slice(0, 12).forEach((c, i) => {
+    const name = c.fields['姓名'] || ('角色'+(i+1));
+    const factionVal = c.fields['所属势力'];
+    let factionList = [];
+    if (Array.isArray(factionVal)) {
+      factionList = factionVal.map(item => {
+        if (typeof item === 'string') return item;
+        if (typeof item === 'object' && item) return item.record_id || item.id || item.text || '';
+        return '';
+      }).filter(Boolean);
+    } else if (typeof factionVal === 'string' && factionVal) {
+      factionList = factionVal.split(',').map(s=>s.trim()).filter(Boolean);
+    }
+    nodes.push({name, symbolSize: 22, itemStyle:{color:'#48c'}});
+    factionList.forEach(fname => {
+      if (!factionSet.has(fname)) {
+        factionSet.add(fname);
+        nodes.push({name: fname, symbolSize: 32, itemStyle:{color:'#cc8'}});
+      }
+      links.push({source: name, target: fname, lineStyle:{color:'#88c', width:1.5}, label:{show:true, formatter:'所属', fontSize:9, color:'#aaa'}});
+    });
+  });
+  chart.setOption({
+    tooltip:{},
+    series:[{type:'graph', layout:'force', roam:true, draggable:true,
+      force:{repulsion:180, edgeLength:70},
+      label:{show:true, position:'inside', color:'#fff', fontSize:9, fontWeight:'bold'},
+      data: nodes, links: links,
+      lineStyle:{opacity:0.5, curveness:0.1}
+    }]
+  });
+}
+
+function renderRomanceChart() {
+  const el = document.getElementById('romanceChart');
+  if (!el || !window.echarts) return;
+  const chart = echarts.init(el);
+  const romances = allData.romances || [];
+  const chars = allData.characters || [];
+  // 辅助函数：从关联字段值中提取名称
+  const extractNames = (val) => {
+    if (!val) return [];
+    if (Array.isArray(val)) {
+      return val.map(item => {
+        if (typeof item === 'string') return item;
+        if (typeof item === 'object' && item) return item.record_id || item.id || item.text || '';
+        return '';
+      }).filter(Boolean);
+    }
+    if (typeof val === 'string') return val.split(',').map(s=>s.trim()).filter(Boolean);
+    return [];
+  };
+  const charNames = new Set();
+  const nodes = [];
+  const links = [];
+  romances.slice(0, 8).forEach((r, i) => {
+    const aList = extractNames(r.fields['人物A']);
+    const bList = extractNames(r.fields['人物B']);
+    const a = aList[0] || '';
+    const b = bList[0] || '';
+    const type = r.fields['感情类型'] || '其他';
+    const color = type==='爱情'?'#e8e':type==='友情'?'#48c':type==='敌对'?'#c44':'#888';
+    if (a && !charNames.has(a)) { charNames.add(a); }
+    if (b && !charNames.has(b)) { charNames.add(b); }
+    if (a && b) links.push({source:a, target:b, lineStyle:{color, width:2, type: type==='敌对'?'dashed':'solid'}, label:{show:true, formatter:type, fontSize:9, color}});
+  });
+  chars.slice(0,10).forEach(c => {
+    const name = c.fields['姓名'];
+    if (name && charNames.has(name) && !nodes.find(n => n.name === name)) {
+      const role = c.fields['身份定位'];
+      const color = role==='主角'?'#c44':role==='女主'?'#e8e':role==='反派BOSS'?'#c64':'#48c';
+      nodes.push({name, symbolSize: role==='主角'?28:22, itemStyle:{color}});
+    }
+  });
+  // 补充感情线中出现但不在角色表的节点
+  charNames.forEach(name => {
+    if (!nodes.find(n => n.name === name)) {
+      nodes.push({name, symbolSize:20, itemStyle:{color:'#666'}});
+    }
+  });
+  chart.setOption({
+    tooltip:{},
+    series:[{type:'graph', layout:'force', roam:true, draggable:true,
+      force:{repulsion:160, edgeLength:65},
+      label:{show:true, position:'inside', color:'#fff', fontSize:9, fontWeight:'bold'},
+      data: nodes, links: links,
+      lineStyle:{opacity:0.6, curveness:0.15}
+    }]
+  });
+}
+
+function renderTable() {
+  const t = T[curPage];
+  // 排序
+  let sorted = [...curRecords];
+  if (sortField) {
+    sorted.sort((a,b) => {
+      const va = a.fields[sortField], vb = b.fields[sortField];
+      if (va == null) return 1;
+      if (vb == null) return -1;
+      if (typeof va === 'number' && typeof vb === 'number') return sortOrder==='asc'?va-vb:vb-va;
+      return sortOrder==='asc'?String(va).localeCompare(String(vb),'zh'):String(vb).localeCompare(String(va),'zh');
+    });
+  }
+  const total = sorted.length;
+  const totalPages = Math.ceil(total / 50) || 1;
+  const start = (curPageNum - 1) * 50;
+  const pageRecs = sorted.slice(start, start + 50);
+  const dispFields = t.fields.slice(0, 7);
+  // 关联字段也显示在表格中
+  const relFields = REL[curPage] || {};
+  const relFieldList = Object.entries(relFields).slice(0, 2); // 最多显示2个关联字段
+
+  let html = `<div class="table-toolbar">
+    <input class="search" placeholder="搜索..." value="${searchKw}" oninput="searchKw=this.value;curPageNum=1;render()">
+    <button class="btn btn-primary" onclick="openModal()">+ 新增</button>
+    ${sortField?`<button class="btn btn-sm" onclick="sortField=null;sortOrder='asc';render()" style="margin-left:8px">清除排序</button>`:''}
+    <span style="color:var(--text3);font-size:12px;margin-left:auto">共 ${total} 条</span>
+  </div><div class="table-wrap"><table><thead><tr><th style="width:40px">#</th>`;
+  dispFields.forEach(f => {
+    const arrow = sortField===f.k ? (sortOrder==='asc'?' ↑':' ↓') : '';
+    html += `<th class="sortable" onclick="toggleSort('${f.k}')">${f.k}${arrow}</th>`;
+  });
+  relFieldList.forEach(([fname, rel]) => {
+    html += `<th>${fname} 🔗</th>`;
+  });
+  html += `<th style="width:110px">操作</th></tr></thead><tbody>`;
+
+  if (pageRecs.length === 0) {
+    html += `<tr><td colspan="${dispFields.length+relFieldList.length+2}" class="empty"><div class="empty-icon">📜</div>暂无数据，点击「新增」开始记录</td></tr>`;
+  } else {
+    pageRecs.forEach((r, i) => {
+      html += `<tr><td style="color:var(--text3)">${start+i+1}</td>`;
+      dispFields.forEach(f => {
+        const v = r.fields[f.k];
+        let d = '';
+        if (v==null||v==='') d = '<span style="color:var(--text3)">-</span>';
+        else if (f.t==='checkbox') d = v?'✅':'❌';
+        else if (f.t==='multi'&&Array.isArray(v)) d = v.map(x=>`<span class="tag">${x}</span>`).join('');
+        else if (f.t==='single') d = `<span class="tag">${v}</span>`;
+        else d = String(v);
+        html += `<td title="${String(v||'')}">${d}</td>`;
+      });
+      // 渲染关联字段（直接显示文本）
+      relFieldList.forEach(([fname, rel]) => {
+        const v = r.fields[fname];
+        let names = [];
+        if (Array.isArray(v)) {
+          names = v.map(item => {
+            if (typeof item === 'string') return item;
+            if (typeof item === 'object' && item) return item.record_id || item.id || item.text || '';
+            return '';
+          }).filter(Boolean);
+        } else if (typeof v === 'string' && v) {
+          names = v.split(',').map(s=>s.trim()).filter(Boolean);
+        }
+        const d = names.length ? names.map(n=>`<span class="tag">${n}</span>`).join('') : '<span style="color:var(--text3)">-</span>';
+        html += `<td>${d}</td>`;
+      });
+      html += `<td><button class="btn btn-sm" onclick="openModal('${r.id}')">编辑</button> <button class="btn btn-sm btn-danger" onclick="delRecord('${r.id}')">删除</button></td></tr>`;
+    });
+  }
+  html += `</tbody></table></div><div class="pagination">
+    <div>第 ${curPageNum} / ${totalPages} 页，共 ${total} 条</div>
+    <div><button onclick="curPageNum=1;render()" ${curPageNum===1?'disabled':''}>首页</button>
+    <button onclick="curPageNum--;render()" ${curPageNum===1?'disabled':''}>上一页</button>
+    <button onclick="curPageNum++;render()" ${curPageNum>=totalPages?'disabled':''}>下一页</button>
+    <button onclick="curPageNum=${totalPages};render()" ${curPageNum>=totalPages?'disabled':''}>末页</button></div>
+  </div>`;
+  document.getElementById('content').innerHTML = html;
+}
+
+function openModal(id) {
+  editId = id || null;
+  const t = T[curPage];
+  document.getElementById('modalTitle').textContent = (id?'编辑':'新增') + ' - ' + t.name;
+  let rec = {fields:{}};
+  if (id) rec = curRecords.find(r => r.id === id) || {fields:{}};
+  let h = '<div class="form-grid">';
+
+  // 渲染普通字段
+  t.fields.forEach(f => {
+    const v = rec.fields[f.k];
+    h += `<div class="form-group ${f.full?'full':''}"><label>${f.k}${f.req?' <span class="req">*</span>':''}</label>`;
+    if (f.t==='text') h += `<textarea data-k="${f.k}" rows="${f.full?3:1}">${v||''}</textarea>`;
+    else if (f.t==='number') h += `<input type="number" data-k="${f.k}" value="${v||''}">`;
+    else if (f.t==='date') h += `<input type="date" data-k="${f.k}" value="${v||''}">`;
+    else if (f.t==='checkbox') h += `<div class="checkbox-row"><input type="checkbox" data-k="${f.k}" ${v?'checked':''}><span>${v?'是':'否'}</span></div>`;
+    else if (f.t==='single') h += `<select data-k="${f.k}"><option value="">请选择</option>${f.o.map(o=>`<option value="${o}" ${v===o?'selected':''}>${o}</option>`).join('')}</select>`;
+    else if (f.t==='multi') {
+      const sel = Array.isArray(v)?v:[];
+      h += `<div class="multi-select" data-k="${f.k}">${f.o.map(o=>`<span class="opt ${sel.includes(o)?'sel':''}" onclick="this.classList.toggle('sel')">${o}</span>`).join('')}</div>`;
+    }
+    h += '</div>';
+  });
+
+  // 渲染关联字段（直接用文本匹配，不做ID转换）
+  const relFields = REL[curPage] || {};
+  for (const [fname, rel] of Object.entries(relFields)) {
+    const v = rec.fields[fname];
+    const relRecords = allData[rel.table] || [];
+    const options = relRecords.map(r => r.fields[rel.label] || '').filter(Boolean);
+    const uniqueOpts = [...new Set(options)];
+    // 把值转换成名称数组（处理逗号分隔的多选文本）
+    let selNames = [];
+    if (v) {
+      if (Array.isArray(v)) {
+        selNames = v.map(item => {
+          if (typeof item === 'string') return item;
+          if (typeof item === 'object' && item) return item.record_id || item.id || item.text || '';
+          return '';
+        }).filter(Boolean);
+      } else if (typeof v === 'string') {
+        selNames = v.split(',').map(s=>s.trim()).filter(Boolean);
+      }
+    }
+    h += `<div class="form-group"><label>${fname} <span style="color:var(--accent3);font-size:10px">🔗关联${rel.multiple?'（多选）':''}</span></label>`;
+    if (rel.multiple) {
+      h += `<div class="multi-select" data-k="${fname}" data-rel="1" data-multi="1">${uniqueOpts.map(o=>`<span class="opt ${selNames.includes(o)?'sel':''}" onclick="this.classList.toggle('sel')">${o}</span>`).join('')}</div>`;
+    } else {
+      h += `<div class="multi-select" data-k="${fname}" data-rel="1" data-multi="0">${uniqueOpts.map(o=>`<span class="opt ${selNames.includes(o)?'sel':''}" onclick="var p=this.parentNode;p.querySelectorAll('.opt').forEach(function(e){e.classList.remove('sel')});this.classList.add('sel')">${o}</span>`).join('')}</div>`;
+    }
+    if (uniqueOpts.length === 0) h += '<div style="font-size:11px;color:var(--text3);padding:4px">关联表暂无数据，请先在对应表添加记录</div>';
+    h += '</div>';
+  }
+
+  h += '</div>';
+  document.getElementById('modalBody').innerHTML = h;
+  document.getElementById('modal').classList.add('show');
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('show'); editId = null; }
+
+// 表格排序
+function toggleSort(field) {
+  if (sortField === field) {
+    sortOrder = sortOrder==='asc'?'desc':'asc';
+  } else {
+    sortField = field;
+    sortOrder = 'asc';
+  }
+  curPageNum = 1;
+  render();
+}
+
+// 只加载单张表（操作后刷新用，快很多）
+async function loadTable(key) {
+  try {
+    const d = await api('GET', `/${key}/records?page_size=500`);
+    allData[key] = d.records || [];
+  } catch(e) { allData[key] = []; }
+}
+
+async function saveRecord() {
+  const t = T[curPage];
+  const fields = {};
+  t.fields.forEach(f => {
+    const el = document.querySelector(`[data-k="${CSS.escape(f.k)}"]`);
+    if (!el) return;
+    if (f.t==='checkbox') fields[f.k] = el.checked;
+    else if (f.t==='multi') fields[f.k] = Array.from(el.querySelectorAll('.opt.sel')).map(e=>e.textContent);
+    else { const v = el.value; if (v!=='') fields[f.k] = f.t==='number'?Number(v):v; }
+  });
+  // 保存关联字段（直接保存文本，不做ID转换，兼容性最好）
+  const relFields = REL[curPage] || {};
+  for (const [fname, rel] of Object.entries(relFields)) {
+    const el = document.querySelector(`[data-k="${CSS.escape(fname)}"]`);
+    if (!el) continue;
+    const isMulti = el.dataset.multi === '1' || rel.multiple;
+    const selected = Array.from(el.querySelectorAll('.opt.sel')).map(e=>e.textContent.trim()).filter(Boolean);
+    if (isMulti) {
+      if (selected.length > 0) fields[fname] = selected.join(', ');
+    } else {
+      if (selected.length > 0) fields[fname] = selected[0];
+    }
+  }
+  for (const f of t.fields) { if (f.req && !fields[f.k]) { toast('请填写「'+f.k+'」',true); return; } }
+  const btn = document.querySelector('#modal .btn-primary');
+  const oldText = btn ? btn.textContent : '';
+  if (btn) { btn.textContent = '保存中...'; btn.disabled = true; }
+  try {
+    if (editId) await api('PUT', `/${curPage}/records/${editId}`, {fields});
+    else await api('POST', `/${curPage}/records`, {fields});
+    toast(editId?'修改成功':'新增成功');
+    closeModal();
+    await loadTable(curPage);
+    renderNav();
+    render();
+  } catch(e) { toast('保存失败: '+e.message, true); }
+  finally { if (btn) { btn.textContent = oldText; btn.disabled = false; } }
+}
+
+async function delRecord(id) {
+  if (!await confirmDialog('确定删除这条记录？删除后不可恢复。')) return;
+  toast('删除中...');
+  try {
+    await api('DELETE', `/${curPage}/records/${id}`);
+    toast('删除成功');
+    await loadTable(curPage);
+    renderNav();
+    render();
+  } catch(e) { toast('删除失败: '+e.message, true); }
+}
+
+// 自定义确认弹窗（避免Electron原生confirm卡死）
+function confirmDialog(msg) {
+  return new Promise(resolve => {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay show';
+    overlay.style.display = 'flex';
+    overlay.style.zIndex = '10000';
+    overlay.innerHTML = `<div class="modal" style="width:380px;animation:modalIn .3s ease">
+      <div class="modal-header" style="border-bottom:none;padding-bottom:0">
+        <h3 style="display:flex;align-items:center;gap:10px"><span style="font-size:22px">⚠️</span>确认操作</h3>
+      </div>
+      <div class="modal-body" style="padding:16px 28px 24px;font-size:15px;color:var(--text2);line-height:1.8">${msg}</div>
+      <div class="modal-footer" style="padding-top:16px">
+        <button class="btn" id="confirmCancel">取消</button>
+        <button class="btn btn-danger" id="confirmOk">确认删除</button>
+      </div>
+    </div>`;
+    document.body.appendChild(overlay);
+    overlay.querySelector('#confirmCancel').onclick = () => { overlay.remove(); resolve(false); };
+    overlay.querySelector('#confirmOk').onclick = () => { overlay.remove(); resolve(true); };
+    overlay.onclick = (e) => { if(e.target===overlay) { overlay.remove(); resolve(false); } };
+  });
+}
+
+// 字段选项管理
+function renderFieldsMgr() {
+  const tables = Object.entries(T);
+  const t = T[fmTable];
+  const singleFields = t.fields.filter(f => f.t==='single' || f.t==='multi');
+
+  let h = `<div class="fields-mgr">
+    <div class="fm-col"><div class="fm-col-header">数据表</div>`;
+  tables.forEach(([k,v]) => {
+    h += `<div class="fm-item ${fmTable===k?'active':''}" onclick="fmTable='${k}';fmField=null;renderFieldsMgr()">${v.icon} ${v.name}<span class="cnt">${v.fields.length}</span></div>`;
+  });
+  h += `</div><div class="fm-col"><div class="fm-col-header">选择字段</div>`;
+  singleFields.forEach(f => {
+    h += `<div class="fm-item ${fmField===f.k?'active':''}" onclick="fmField='${f.k}';renderFieldsMgr()">${f.k}<span class="fm-field-type">${f.t==='single'?'单选':'多选'}</span></div>`;
+  });
+  h += `</div><div class="fm-col"><div class="fm-col-header">${fmField||'请选择字段'} <span style="font-size:11px;color:var(--text3);font-weight:normal">共 ${fmField?(t.fields.find(f=>f.k===fmField)?.o||[]).length:0} 个选项 · 类型：${fmField?(t.fields.find(f=>f.k===fmField)?.t==='single'?'单选':'多选'):''}</span></div>`;
+
+  if (fmField) {
+    const f = t.fields.find(x => x.k === fmField);
+    h += `<div class="opt-list"><div class="opt-input-row"><input id="newOpt" placeholder="输入新选项名称..."><button class="btn btn-primary" onclick="addOption()">+ 添加选项</button></div>`;
+    (f.o||[]).forEach((o, i) => {
+      const colors = ['#c44','#4a8','#48c','#cc4','#c84','#84c','#4cc','#c68','#8c4','#68c'];
+      h += `<div class="opt-item"><span class="drag">⠿</span><span class="color-box" style="background:${colors[i%10]}"></span><span class="opt-name" contenteditable="true" onblur="saveOptionEdit(${i}, this.innerText)" title="双击可编辑">${o}</span><span class="opt-idx">#${i+1}</span><span class="opt-del" onclick="delOption(${i})">×</span></div>`;
+    });
+    h += '</div>';
+  } else {
+    h += '<div class="empty" style="padding:40px">请从左侧选择一个字段</div>';
+  }
+  h += '</div></div>';
+  document.getElementById('content').innerHTML = h;
+}
+
+function addOption() {
+  const input = document.getElementById('newOpt');
+  const val = input.value.trim();
+  if (!val) return;
+  const f = T[fmTable].fields.find(x => x.k === fmField);
+  f.o.push(val);
+  input.value = '';
+  renderFieldsMgr();
+  toast('选项已添加（仅本次会话生效，如需持久化请修改代码）');
+}
+
+function delOption(i) {
+  const f = T[fmTable].fields.find(x => x.k === fmField);
+  f.o.splice(i, 1);
+  renderFieldsMgr();
+}
+
+function saveOptionEdit(i, newVal) {
+  const val = newVal.trim();
+  if (!val) { renderFieldsMgr(); return; }
+  const f = T[fmTable].fields.find(x => x.k === fmField);
+  if (f.o[i] !== val) {
+    f.o[i] = val;
+    toast('选项已更新');
+  }
+}
+
+function toast(msg, err) {
+  const t = document.createElement('div');
+  t.className = 'toast' + (err?' err':'');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2500);
+}
+
+// 主题切换
+function setTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('db_theme', theme);
+  document.querySelectorAll('.theme-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.theme === theme);
+  });
+}
+document.querySelectorAll('.theme-btn').forEach(btn => {
+  btn.addEventListener('click', () => setTheme(btn.dataset.theme));
+});
+const savedTheme = localStorage.getItem('db_theme') || 'deepsea';
+setTheme(savedTheme);
+
+// 字体大小调节
+function setFontSize(size) {
+  const sizes = {small:'13px', normal:'15px', large:'17px'};
+  document.body.style.fontSize = sizes[size];
+  localStorage.setItem('db_fontsize', size);
+  document.querySelectorAll('.font-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent === (size==='small'?'A-':size==='large'?'A+':'A'));
+  });
+}
+const savedFont = localStorage.getItem('db_fontsize') || 'normal';
+setFontSize(savedFont);
+
+// 初始化 - 先渲染UI，再异步加载数据
+renderNav();
+render();
+loadAll().then(() => { renderNav(); if(curPage==='overview') render(); else render(); }).catch(e => console.error('加载数据失败:', e));
+
+// 老板键：F9切换代码伪装界面
+let bossMode = false;
+const bossCode = `// server.js - Enterprise Data Service
+const express = require('express');
+const mysql = require('mysql2/promise');
+const redis = require('redis');
+const app = express();
+
+// Database connection pool
+const pool = mysql.createPool({
+  host: '10.0.1.100',
+  user: 'app_svc',
+  password: '********',
+  database: 'enterprise_db',
+  waitForConnections: true,
+  connectionLimit: 20,
+  queueLimit: 0
+});
+
+// Redis client for caching
+const redisClient = redis.createClient({
+  url: 'redis://10.0.1.101:6379',
+  password: '********'
+});
+redisClient.connect().catch(console.error);
+
+// Middleware
+app.use(express.json({ limit: '10mb' }));
+app.use(cors({ origin: process.env.ALLOWED_ORIGINS.split(',') }));
+app.use(helmet());
+app.use(compression());
+
+// Auth middleware
+const authenticate = async (req, res, next) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    const cached = await redisClient.get(\`session:\${decoded.userId}\`);
+    if (!cached) return res.status(401).json({ error: 'Session expired' });
+    next();
+  } catch (e) { return res.status(401).json({ error: 'Invalid token' }); }
+};
+
+// API Routes
+app.get('/api/v1/records', authenticate, async (req, res) => {
+  const { page = 1, limit = 50, status, type } = req.query;
+  const offset = (page - 1) * limit;
+  let query = 'SELECT * FROM records WHERE 1=1';
+  const params = [];
+  if (status) { query += ' AND status = ?'; params.push(status); }
+  if (type) { query += ' AND type = ?'; params.push(type); }
+  query += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
+  params.push(parseInt(limit), offset);
+  const [rows] = await pool.execute(query, params);
+  const [countResult] = await pool.execute('SELECT COUNT(*) as total FROM records');
+  res.json({ data: rows, total: countResult[0].total, page: parseInt(page) });
+});
+
+app.post('/api/v1/records', authenticate, async (req, res) => {
+  const { title, content, type, priority } = req.body;
+  if (!title || !content) return res.status(400).json({ error: 'Missing required fields' });
+  const [result] = await pool.execute(
+    'INSERT INTO records (title, content, type, priority, created_by) VALUES (?, ?, ?, ?, ?)',
+    [title, content, type || 'normal', priority || 'medium', req.user.userId]
+  );
+  await redisClient.del('records:list');
+  res.status(201).json({ id: result.insertId, message: 'Created successfully' });
+});
+
+app.put('/api/v1/records/:id', authenticate, async (req, res) => {
+  const { id } = req.params;
+  const updates = [];
+  const params = [];
+  for (const [key, value] of Object.entries(req.body)) {
+    if (['title', 'content', 'status', 'priority'].includes(key)) {
+      updates.push(\`\${key} = ?\`);
+      params.push(value);
+    }
+  }
+  if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
+  params.push(id);
+  await pool.execute(\`UPDATE records SET \${updates.join(', ')} WHERE id = ?\`, params);
+  await redisClient.del(\`record:\${id}\`);
+  res.json({ message: 'Updated successfully' });
+});
+
+app.delete('/api/v1/records/:id', authenticate, async (req, res) => {
+  const { id } = req.params;
+  await pool.execute('UPDATE records SET deleted_at = NOW() WHERE id = ?', [id]);
+  await redisClient.del(\`record:\${id}\`, 'records:list');
+  res.json({ message: 'Deleted successfully' });
+});
+
+// Health check
+app.get('/health', async (req, res) => {
+  const dbStatus = await pool.query('SELECT 1').then(() => 'up').catch(() => 'down');
+  const redisStatus = redisClient.isOpen ? 'up' : 'down';
+  res.json({ status: 'ok', database: dbStatus, redis: redisStatus, uptime: process.uptime() });
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json({ error: 'Internal server error', reference: Date.now() });
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(\`[Server] Enterprise Data Service running on port \${PORT}\`);
+  console.log(\`[Server] Environment: \${process.env.NODE_ENV}\`);
+  console.log(\`[Server] Database pool initialized with 20 connections\`);
+});`;
+
+function toggleBossMode() {
+  bossMode = !bossMode;
+  let overlay = document.getElementById('bossOverlay');
+  if (bossMode) {
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'bossOverlay';
+      overlay.className = 'boss-overlay';
+      overlay.innerHTML = `
+        <div class="boss-titlebar">
+          <div class="boss-tabs">
+            <span class="boss-tab active">server.js</span>
+            <span class="boss-tab">config.js</span>
+            <span class="boss-tab">package.json</span>
+            <span class="boss-tab">README.md</span>
+          </div>
+          <div class="boss-window-controls">
+            <span class="boss-dot" style="background:#ff5f57"></span>
+            <span class="boss-dot" style="background:#febc2e"></span>
+            <span class="boss-dot" style="background:#28c840"></span>
+          </div>
+        </div>
+        <div class="boss-codearea">
+          <div class="boss-linenos"></div>
+          <pre class="boss-code"></pre>
+        </div>
+        <div class="boss-statusbar">
+          <span>UTF-8</span><span>JavaScript</span><span>Ln 1, Col 1</span><span>Spaces: 2</span><span style="margin-left:auto">~ to exit</span>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      const codeEl = overlay.querySelector('.boss-code');
+      const lineNos = overlay.querySelector('.boss-linenos');
+      const lines = bossCode.split('\n');
+      codeEl.textContent = bossCode;
+      lineNos.innerHTML = lines.map((_, i) => `<div>${i+1}</div>`).join('');
+    }
+    overlay.style.display = 'flex';
+  } else {
+    if (overlay) overlay.style.display = 'none';
+  }
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === '`' || e.key === '~') { e.preventDefault(); toggleBossMode(); }
+});
+</script>
+</body>
+</html>
